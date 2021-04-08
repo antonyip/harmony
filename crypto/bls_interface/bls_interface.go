@@ -7,6 +7,7 @@ import (
 	"math/big"
 
 	"github.com/harmony-one/bls/ffi/go/bls"
+	blst "github.com/supranational/blst/bindings/go"
 	"github.com/pkg/errors"
 )
 
@@ -74,7 +75,7 @@ func (sec *BlsSecretKey) SignHash(hash []byte) (sig *BlsSign){
 }
 
 func (sig *BlsSign) Serialize() []byte {
-	return sig.Serialize()
+	return sig.Sign.Serialize()
 }
 
 func (sig *BlsSign) Deserialize(buf []byte) error {
@@ -87,10 +88,6 @@ func (sig *BlsSign) VerifyHash(pub *BlsPublicKey, hash []byte) bool {
 
 func (pub *BlsPublicKey) GetAddress() [20]byte {
 	return pub.PublicKey.GetAddress()
-}
-
-func (pub *BlsPublicKey) GetRawKey() *bls.PublicKey {
-	return &pub.PublicKey
 }
 
 func (pub *BlsPublicKey) IsEqual(rhs *BlsPublicKey) bool {
@@ -210,4 +207,5 @@ func SeparateSigAndMask(commitSigs []byte) ([]byte, []byte, error) {
 
 func Init() {
 	bls.Init(bls.BLS12_381)
+	blst.SetMaxProcs(1)
 }

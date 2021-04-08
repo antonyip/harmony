@@ -35,11 +35,15 @@ RUN git clone https://github.com/harmony-one/harmony.git ${HMY_PATH}/harmony
 
 RUN git clone https://github.com/harmony-one/bls.git ${HMY_PATH}/bls
 
+RUN git clone https://github.com/supranational/blst ${HMY_PATH}/blst
+
 RUN git clone https://github.com/harmony-one/mcl.git ${HMY_PATH}/mcl
 
 RUN git clone https://github.com/harmony-one/go-sdk.git ${HMY_PATH}/go-sdk
 
 RUN cd ${HMY_PATH}/bls && make -j8 BLS_SWAP_G=1
+
+RUN cd ${HMY_PATH}/blst && sh build.sh
 
 RUN touch /root/.bash_profile
 

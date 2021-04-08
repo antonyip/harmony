@@ -8,7 +8,7 @@ import (
 	"github.com/harmony-one/harmony/consensus/reward"
 	"github.com/harmony-one/harmony/core/state"
 	"github.com/harmony-one/harmony/core/types"
-	"github.com/harmony-one/harmony/crypto/bls"
+	"github.com/harmony-one/harmony/crypto/bls_interface"
 	"github.com/harmony-one/harmony/internal/params"
 	"github.com/harmony-one/harmony/shard"
 	"github.com/harmony-one/harmony/shard/committee"
@@ -84,7 +84,7 @@ type Engine interface {
 	// i.e. this header verification api is more flexible since the caller specifies which commit signature and bitmap to use
 	// for verifying the block header, which is necessary for cross-shard block header verification. Example of such is cross-shard transaction.
 	VerifyHeaderSignature(
-		chain ChainReader, header *block.Header, commitSig bls.SerializedSignature, commitBitmap []byte,
+		chain ChainReader, header *block.Header, commitSig bls_interface.SerializedSignature, commitBitmap []byte,
 	) error
 
 	// VerifyCrossLink verify cross link

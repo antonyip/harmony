@@ -3,13 +3,12 @@ package consensus
 import (
 	"time"
 
-	"github.com/harmony-one/harmony/crypto/bls"
+	"github.com/harmony-one/harmony/crypto/bls_interface"
 	nodeconfig "github.com/harmony-one/harmony/internal/configs/node"
 
 	"github.com/harmony-one/harmony/consensus/signature"
 
 	"github.com/ethereum/go-ethereum/rlp"
-	bls_core "github.com/harmony-one/bls/ffi/go/bls"
 	msg_pb "github.com/harmony-one/harmony/api/proto/message"
 	"github.com/harmony-one/harmony/consensus/quorum"
 	"github.com/harmony-one/harmony/core/types"
@@ -39,7 +38,7 @@ func (consensus *Consensus) announce(block *types.Block) {
 		return
 	}
 
-	networkMessage, err := consensus.construct(msg_pb.MessageType_ANNOUNCE, nil, []*bls.PrivateKeyWrapper{key})
+	networkMessage, err := consensus.construct(msg_pb.MessageType_ANNOUNCE, nil, []*bls_interface.PrivateKeyWrapper{key})
 	if err != nil {
 		consensus.getLogger().Err(err).
 			Str("message-type", msg_pb.MessageType_ANNOUNCE.String()).
@@ -67,7 +66,7 @@ func (consensus *Consensus) announce(block *types.Block) {
 
 		if _, err := consensus.Decider.AddNewVote(
 			quorum.Prepare,
-			[]*bls.PublicKeyWrapper{key.Pub},
+			[]*bls_interface.PublicKeyWrapper{key.Pub},
 			key.Pri.SignHash(consensus.blockHash[:]),
 			block.Hash(),
 			block.NumberU64(),
@@ -140,14 +139,14 @@ func (consensus *Consensus) onPrepare(recvMsg *FBFTMessage) {
 
 	// Check BLS signature for the multi-sig
 	prepareSig := recvMsg.Payload
-	var sign bls_core.Sign
+	var sign bls_interface.BlsSign
 	err := sign.Deserialize(prepareSig)
 	if err != nil {
 		consensus.getLogger().Error().Err(err).
 			Msg("[OnPrepare] Failed to deserialize bls signature")
 		return
 	}
-	signerPubKey := &bls_core.PublicKey{}
+	signerPubKey := &bls_interface.BlsPublicKey{}
 	if recvMsg.HasSingleSender() {
 		signerPubKey = recvMsg.SenderPubkeys[0].Object
 	} else {
@@ -224,7 +223,7 @@ func (consensus *Consensus) onCommit(recvMsg *FBFTMessage) {
 		Int64("numReceivedSoFar", signerCount).Logger()
 
 	logger.Debug().Msg("[OnCommit] Received new commit message")
-	var sign bls_core.Sign
+	var sign bls_interface.BlsSign
 	if err := sign.Deserialize(recvMsg.Payload); err != nil {
 		logger.Debug().Msg("[OnCommit] Failed to deserialize bls signature")
 		return
@@ -247,7 +246,7 @@ func (consensus *Consensus) onCommit(recvMsg *FBFTMessage) {
 		Uint64("MsgBlockNum", recvMsg.BlockNum).
 		Logger()
 
-	signerPubKey := &bls_core.PublicKey{}
+	signerPubKey := &bls_interface.BlsPublicKey{}
 	if recvMsg.HasSingleSender() {
 		signerPubKey = recvMsg.SenderPubkeys[0].Object
 	} else {

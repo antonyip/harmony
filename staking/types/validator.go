@@ -4,12 +4,11 @@ import (
 	"encoding/json"
 	"math/big"
 
-	"github.com/harmony-one/harmony/crypto/bls"
+	"github.com/harmony-one/harmony/crypto/bls_interface"
 	"github.com/harmony-one/harmony/shard"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/rlp"
-	bls_core "github.com/harmony-one/bls/ffi/go/bls"
 	"github.com/harmony-one/harmony/common/denominations"
 	"github.com/harmony-one/harmony/consensus/votepower"
 	"github.com/harmony-one/harmony/crypto/hash"
@@ -222,7 +221,7 @@ type Validator struct {
 	// ECDSA address of the validator
 	Address common.Address `json:"address"`
 	// The BLS public key of the validator for consensus
-	SlotPubKeys []bls.SerializedPublicKey `json:"bls-public-keys"`
+	SlotPubKeys []bls_interface.SerializedPublicKey `json:"bls-public-keys"`
 	// The number of the last epoch this validator is
 	// selected in committee (0 means never selected)
 	LastEpochInCommittee *big.Int `json:"last-epoch-in-committee"`
@@ -324,7 +323,7 @@ func (v *Validator) SanityCheck() error {
 		)
 	}
 
-	allKeys := map[bls.SerializedPublicKey]struct{}{}
+	allKeys := map[bls_interface.SerializedPublicKey]struct{}{}
 	for i := range v.SlotPubKeys {
 		if _, ok := allKeys[v.SlotPubKeys[i]]; !ok {
 			allKeys[v.SlotPubKeys[i]] = struct{}{}
@@ -462,7 +461,7 @@ func (d Description) EnsureLength() (Description, error) {
 
 // VerifyBLSKeys checks if the public BLS key at index i of pubKeys matches the
 // BLS key signature at index i of pubKeysSigs.
-func VerifyBLSKeys(pubKeys []bls.SerializedPublicKey, pubKeySigs []bls.SerializedSignature) error {
+func VerifyBLSKeys(pubKeys []bls_interface.SerializedPublicKey, pubKeySigs []bls_interface.SerializedSignature) error {
 	if len(pubKeys) != len(pubKeySigs) {
 		return errBLSKeysNotMatchSigs
 	}
@@ -477,17 +476,17 @@ func VerifyBLSKeys(pubKeys []bls.SerializedPublicKey, pubKeySigs []bls.Serialize
 }
 
 // VerifyBLSKey checks if the public BLS key matches the BLS signature
-func VerifyBLSKey(pubKey *bls.SerializedPublicKey, pubKeySig *bls.SerializedSignature) error {
+func VerifyBLSKey(pubKey *bls_interface.SerializedPublicKey, pubKeySig *bls_interface.SerializedSignature) error {
 	if len(pubKeySig) == 0 {
 		return errBLSKeysNotMatchSigs
 	}
 
-	blsPubKey, err := bls.BytesToBLSPublicKey(pubKey[:])
+	blsPubKey, err := bls_interface.BytesToBLSPublicKey(pubKey[:])
 	if err != nil {
 		return errBLSKeysNotMatchSigs
 	}
 
-	msgSig := bls_core.Sign{}
+	msgSig := bls_interface.BlsSign{}
 	if err := msgSig.Deserialize(pubKeySig[:]); err != nil {
 		return err
 	}
@@ -502,7 +501,7 @@ func VerifyBLSKey(pubKey *bls.SerializedPublicKey, pubKeySig *bls.SerializedSign
 }
 
 func containsHarmonyBLSKeys(
-	blsKeys []bls.SerializedPublicKey,
+	blsKeys []bls_interface.SerializedPublicKey,
 	hmyAccounts []genesis.DeployAccount,
 	epoch *big.Int,
 ) error {
@@ -517,7 +516,7 @@ func containsHarmonyBLSKeys(
 }
 
 func matchesHarmonyBLSKey(
-	blsKey *bls.SerializedPublicKey,
+	blsKey *bls_interface.SerializedPublicKey,
 	hmyAccounts []genesis.DeployAccount,
 	epoch *big.Int,
 ) error {

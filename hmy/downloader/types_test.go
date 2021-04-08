@@ -10,7 +10,7 @@ import (
 	"github.com/harmony-one/harmony/block"
 	headerV3 "github.com/harmony-one/harmony/block/v3"
 	"github.com/harmony-one/harmony/core/types"
-	bls_cosi "github.com/harmony-one/harmony/crypto/bls"
+	"github.com/harmony-one/harmony/crypto/bls_interface"
 	sttypes "github.com/harmony-one/harmony/p2p/stream/types"
 )
 

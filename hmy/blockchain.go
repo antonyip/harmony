@@ -14,8 +14,7 @@ import (
 	"github.com/harmony-one/harmony/core/rawdb"
 	"github.com/harmony-one/harmony/core/state"
 	"github.com/harmony-one/harmony/core/types"
-	"github.com/harmony-one/harmony/crypto/bls"
-	internal_bls "github.com/harmony-one/harmony/crypto/bls"
+	"github.com/harmony-one/harmony/crypto/bls_interface"
 	internal_common "github.com/harmony-one/harmony/internal/common"
 	"github.com/harmony-one/harmony/internal/params"
 	"github.com/harmony-one/harmony/internal/utils"
@@ -38,7 +37,7 @@ func (hmy *Harmony) GetShardState() (*shard.State, error) {
 // GetBlockSigners ..
 func (hmy *Harmony) GetBlockSigners(
 	ctx context.Context, blockNum rpc.BlockNumber,
-) (shard.SlotList, *internal_bls.Mask, error) {
+) (shard.SlotList, *bls_interface.Mask, error) {
 	blk, err := hmy.BlockByNumber(ctx, blockNum)
 	if err != nil {
 		return nil, nil, err
@@ -54,18 +53,18 @@ func (hmy *Harmony) GetBlockSigners(
 	if err != nil {
 		return nil, nil, err
 	}
-	pubKeys := make([]internal_bls.PublicKeyWrapper, len(committee.Slots))
+	pubKeys := make([]bls_interface.PublicKeyWrapper, len(committee.Slots))
 	for i, validator := range committee.Slots {
-		key, err := bls.BytesToBLSPublicKey(validator.BLSPublicKey[:])
+		key, err := bls_interface.BytesToBLSPublicKey(validator.BLSPublicKey[:])
 		if err != nil {
 			return nil, nil, err
 		}
-		pubKeys[i] = internal_bls.PublicKeyWrapper{
+		pubKeys[i] = bls_interface.PublicKeyWrapper{
 			Bytes:  validator.BLSPublicKey,
 			Object: key,
 		}
 	}
-	mask, err := internal_bls.NewMask(pubKeys, nil)
+	mask, err := bls_interface.NewMask(pubKeys, nil)
 	if err != nil {
 		return nil, nil, err
 	}

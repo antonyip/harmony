@@ -3,7 +3,7 @@ package staketest
 import (
 	"math/big"
 
-	"github.com/harmony-one/harmony/crypto/bls"
+	"github.com/harmony-one/harmony/crypto/bls_interface"
 
 	staking "github.com/harmony-one/harmony/staking/types"
 )

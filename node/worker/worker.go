@@ -9,7 +9,7 @@ import (
 
 	"github.com/harmony-one/harmony/consensus"
 
-	"github.com/harmony-one/harmony/crypto/bls"
+	"github.com/harmony-one/harmony/crypto/bls_interface"
 
 	"github.com/harmony-one/harmony/crypto/hash"
 
@@ -504,7 +504,7 @@ func (w *Worker) FinalizeNewBlock(
 	go func() {
 		select {
 		case sigs := <-commitSigs:
-			sig, signers, err := bls.SeparateSigAndMask(sigs)
+			sig, signers, err := bls_interface.SeparateSigAndMask(sigs)
 			if err != nil {
 				utils.Logger().Error().Err(err).Msg("Failed to parse commit sigs")
 				sigsReady <- false

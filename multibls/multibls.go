@@ -4,16 +4,14 @@ import (
 	"strings"
 
 	"github.com/harmony-one/harmony/internal/utils"
-
-	bls_core "github.com/harmony-one/bls/ffi/go/bls"
-	"github.com/harmony-one/harmony/crypto/bls"
+	"github.com/harmony-one/harmony/crypto/bls_interface"
 )
 
 // PrivateKeys stores the bls secret keys that belongs to the node
-type PrivateKeys []bls.PrivateKeyWrapper
+type PrivateKeys []bls_interface.PrivateKeyWrapper
 
 // PublicKeys stores the bls public keys that belongs to the node
-type PublicKeys []bls.PublicKeyWrapper
+type PublicKeys []bls_interface.PublicKeyWrapper
 
 // SerializeToHexStr wrapper
 func (multiKey PublicKeys) SerializeToHexStr() string {
@@ -28,7 +26,7 @@ func (multiKey PublicKeys) SerializeToHexStr() string {
 }
 
 // Contains wrapper
-func (multiKey PublicKeys) Contains(pubKey *bls_core.PublicKey) bool {
+func (multiKey PublicKeys) Contains(pubKey *bls_interface.BlsPublicKey) bool {
 	for _, key := range multiKey {
 		if key.Object.IsEqual(pubKey) {
 			return true
@@ -39,7 +37,7 @@ func (multiKey PublicKeys) Contains(pubKey *bls_core.PublicKey) bool {
 
 // GetPublicKeys wrapper
 func (multiKey PrivateKeys) GetPublicKeys() PublicKeys {
-	pubKeys := make([]bls.PublicKeyWrapper, len(multiKey))
+	pubKeys := make([]bls_interface.PublicKeyWrapper, len(multiKey))
 	for i, key := range multiKey {
 		pubKeys[i] = *key.Pub
 	}
@@ -50,7 +48,7 @@ func (multiKey PrivateKeys) GetPublicKeys() PublicKeys {
 // Dedup will return a new list of dedupped private keys.
 // This func won't modify the original slice.
 func (multiKey PrivateKeys) Dedup() PrivateKeys {
-	uniqueKeys := make(map[bls.SerializedPublicKey]struct{})
+	uniqueKeys := make(map[bls_interface.SerializedPublicKey]struct{})
 	deduped := make(PrivateKeys, 0, len(multiKey))
 	for _, priKey := range multiKey {
 		if _, ok := uniqueKeys[priKey.Pub.Bytes]; ok {
@@ -64,10 +62,10 @@ func (multiKey PrivateKeys) Dedup() PrivateKeys {
 }
 
 // GetPrivateKeys creates a multibls PrivateKeys using bls.SecretKey
-func GetPrivateKeys(secretKeys ...*bls_core.SecretKey) PrivateKeys {
+func GetPrivateKeys(secretKeys ...*bls_interface.BlsSecretKey) PrivateKeys {
 	keys := make(PrivateKeys, 0, len(secretKeys))
 	for _, secretKey := range secretKeys {
-		key := bls.WrapperFromPrivateKey(secretKey)
+		key := bls_interface.WrapperFromPrivateKey(secretKey)
 		keys = append(keys, key)
 	}
 	return keys

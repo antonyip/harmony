@@ -6,14 +6,12 @@ import (
 	"sync"
 
 	"github.com/ethereum/go-ethereum/common"
-	bls_core "github.com/harmony-one/bls/ffi/go/bls"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 
 	msg_pb "github.com/harmony-one/harmony/api/proto/message"
 	"github.com/harmony-one/harmony/core/types"
-	"github.com/harmony-one/harmony/crypto/bls"
-	bls_cosi "github.com/harmony-one/harmony/crypto/bls"
+	"github.com/harmony-one/harmony/crypto/bls_interface"
 )
 
 // FBFTMessage is the record of pbft messages received by a node during FBFT process
@@ -23,16 +21,16 @@ type FBFTMessage struct {
 	BlockNum           uint64
 	BlockHash          common.Hash
 	Block              []byte
-	SenderPubkeys      []*bls.PublicKeyWrapper
+	SenderPubkeys      []*bls_interface.PublicKeyWrapper
 	SenderPubkeyBitmap []byte
-	LeaderPubkey       *bls.PublicKeyWrapper
+	LeaderPubkey       *bls_interface.PublicKeyWrapper
 	Payload            []byte
-	ViewchangeSig      *bls_core.Sign
-	ViewidSig          *bls_core.Sign
-	M2AggSig           *bls_core.Sign
-	M2Bitmap           *bls_cosi.Mask
-	M3AggSig           *bls_core.Sign
-	M3Bitmap           *bls_cosi.Mask
+	ViewchangeSig      *bls_interface.BlsSign
+	ViewidSig          *bls_interface.BlsSign
+	M2AggSig           *bls_interface.BlsSign
+	M2Bitmap           *bls_interface.Mask
+	M3AggSig           *bls_interface.BlsSign
+	M3Bitmap           *bls_interface.Mask
 	Verified           bool
 }
 
@@ -70,7 +68,7 @@ const (
 	idTypeBytes   = 4
 	idViewIDBytes = 8
 	idHashBytes   = common.HashLength
-	idSenderBytes = bls.PublicKeySizeInBytes
+	idSenderBytes = bls_interface.PublicKeySizeInBytes
 
 	idBytes = idTypeBytes + idViewIDBytes + idHashBytes + idSenderBytes
 )
@@ -352,11 +350,11 @@ func (consensus *Consensus) ParseFBFTMessage(msg *msg_pb.Message) (*FBFTMessage,
 
 	if len(consensusMsg.SenderPubkey) != 0 {
 		// If SenderPubKey is populated, treat it as a single key message
-		pubKey, err := bls_cosi.BytesToBLSPublicKey(consensusMsg.SenderPubkey)
+		pubKey, err := bls_interface.BytesToBLSPublicKey(consensusMsg.SenderPubkey)
 		if err != nil {
 			return nil, err
 		}
-		pbftMsg.SenderPubkeys = []*bls.PublicKeyWrapper{{Object: pubKey}}
+		pbftMsg.SenderPubkeys = []*bls_interface.PublicKeyWrapper{{Object: pubKey}}
 		copy(pbftMsg.SenderPubkeys[0].Bytes[:], consensusMsg.SenderPubkey[:])
 	} else {
 		// else, it should be a multi-key message where the bitmap is populated

@@ -3,7 +3,7 @@ package nodeconfig
 import (
 	"testing"
 
-	"github.com/harmony-one/harmony/crypto/bls"
+	"github.com/harmony-one/harmony/crypto/bls_interface"
 
 	"github.com/harmony-one/harmony/internal/blsgen"
 	shardingconfig "github.com/harmony-one/harmony/internal/configs/sharding"

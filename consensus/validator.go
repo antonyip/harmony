@@ -9,7 +9,7 @@ import (
 	msg_pb "github.com/harmony-one/harmony/api/proto/message"
 	"github.com/harmony-one/harmony/consensus/signature"
 	"github.com/harmony-one/harmony/core/types"
-	"github.com/harmony-one/harmony/crypto/bls"
+	"github.com/harmony-one/harmony/crypto/bls_interface"
 	"github.com/harmony-one/harmony/internal/chain"
 	nodeconfig "github.com/harmony-one/harmony/internal/configs/node"
 	"github.com/harmony-one/harmony/p2p"
@@ -304,7 +304,7 @@ func (consensus *Consensus) onCommitted(recvMsg *FBFTMessage) {
 	blk := consensus.Blockchain.GetBlockByHash(blockObj.Hash())
 	if err == nil && len(commitSigBitmap) == len(recvMsg.Payload) && blk != nil {
 		new := mask.CountEnabled()
-		mask.SetMask(commitSigBitmap[bls.BLSSignatureSizeInBytes:])
+		mask.SetMask(commitSigBitmap[bls_interface.BLSSignatureSizeInBytes:])
 		cur := mask.CountEnabled()
 		if new > cur {
 			consensus.getLogger().Info().Hex("old", commitSigBitmap).Hex("new", recvMsg.Payload).Msg("[OnCommitted] Overriding commit signatures!!")
@@ -343,8 +343,8 @@ func (consensus *Consensus) onCommitted(recvMsg *FBFTMessage) {
 
 // Collect private keys that are part of the current committee.
 // TODO: cache valid private keys and only update when keys change.
-func (consensus *Consensus) getPriKeysInCommittee() []*bls.PrivateKeyWrapper {
-	priKeys := []*bls.PrivateKeyWrapper{}
+func (consensus *Consensus) getPriKeysInCommittee() []*bls_interface.PrivateKeyWrapper {
+	priKeys := []*bls_interface.PrivateKeyWrapper{}
 	for i, key := range consensus.priKey {
 		if !consensus.IsValidatorInCommittee(key.Pub.Bytes) {
 			continue
@@ -354,7 +354,7 @@ func (consensus *Consensus) getPriKeysInCommittee() []*bls.PrivateKeyWrapper {
 	return priKeys
 }
 
-func (consensus *Consensus) constructP2pMessages(msgType msg_pb.MessageType, payloadForSign []byte, priKeys []*bls.PrivateKeyWrapper) []*NetworkMessage {
+func (consensus *Consensus) constructP2pMessages(msgType msg_pb.MessageType, payloadForSign []byte, priKeys []*bls_interface.PrivateKeyWrapper) []*NetworkMessage {
 	p2pMsgs := []*NetworkMessage{}
 	if consensus.AggregateSig {
 		networkMessage, err := consensus.construct(msgType, payloadForSign, priKeys)
@@ -371,7 +371,7 @@ func (consensus *Consensus) constructP2pMessages(msgType msg_pb.MessageType, pay
 
 	} else {
 		for _, key := range priKeys {
-			networkMessage, err := consensus.construct(msgType, payloadForSign, []*bls.PrivateKeyWrapper{key})
+			networkMessage, err := consensus.construct(msgType, payloadForSign, []*bls_interface.PrivateKeyWrapper{key})
 			if err != nil {
 				consensus.getLogger().Err(err).
 					Str("message-type", msgType.String()).

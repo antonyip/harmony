@@ -5,14 +5,12 @@ import (
 	"sync"
 	"time"
 
-	"github.com/harmony-one/harmony/crypto/bls"
+	"github.com/harmony-one/harmony/crypto/bls_interface"
 
 	"github.com/harmony-one/abool"
-	bls_core "github.com/harmony-one/bls/ffi/go/bls"
 	"github.com/harmony-one/harmony/consensus/quorum"
 	"github.com/harmony-one/harmony/core"
 	"github.com/harmony-one/harmony/core/types"
-	bls_cosi "github.com/harmony-one/harmony/crypto/bls"
 	"github.com/harmony-one/harmony/internal/utils"
 	"github.com/harmony-one/harmony/multibls"
 	"github.com/harmony-one/harmony/p2p"
@@ -51,12 +49,12 @@ type Consensus struct {
 	// 2 types of timeouts: normal and viewchange
 	consensusTimeout map[TimeoutType]*utils.Timeout
 	// Commits collected from validators.
-	aggregatedPrepareSig *bls_core.Sign
-	aggregatedCommitSig  *bls_core.Sign
-	prepareBitmap        *bls_cosi.Mask
-	commitBitmap         *bls_cosi.Mask
+	aggregatedPrepareSig *bls_interface.BlsSign
+	aggregatedCommitSig  *bls_interface.BlsSign
+	prepareBitmap        *bls_interface.Mask
+	commitBitmap         *bls_interface.Mask
 
-	multiSigBitmap *bls_cosi.Mask // Bitmap for parsing multisig bitmap from validators
+	multiSigBitmap *bls_interface.Mask // Bitmap for parsing multisig bitmap from validators
 	multiSigMutex  sync.RWMutex
 
 	// The blockchain this consensus is working on
@@ -68,7 +66,7 @@ type Consensus struct {
 	// private/public keys of current node
 	priKey multibls.PrivateKeys
 	// the publickey of leader
-	LeaderPubKey *bls.PublicKeyWrapper
+	LeaderPubKey *bls_interface.PublicKeyWrapper
 	// blockNum: the next blockNumber that FBFT is going to agree on,
 	// should be equal to the blockNumber of next block
 	blockNum uint64
@@ -165,7 +163,7 @@ func (consensus *Consensus) GetPublicKeys() multibls.PublicKeys {
 }
 
 // GetLeaderPrivateKey returns leader private key if node is the leader
-func (consensus *Consensus) GetLeaderPrivateKey(leaderKey *bls_core.PublicKey) (*bls.PrivateKeyWrapper, error) {
+func (consensus *Consensus) GetLeaderPrivateKey(leaderKey *bls_interface.BlsPublicKey) (*bls_interface.PrivateKeyWrapper, error) {
 	for i, key := range consensus.priKey {
 		if key.Pub.Object.IsEqual(leaderKey) {
 			return &consensus.priKey[i], nil
@@ -175,7 +173,7 @@ func (consensus *Consensus) GetLeaderPrivateKey(leaderKey *bls_core.PublicKey) (
 }
 
 // GetConsensusLeaderPrivateKey returns consensus leader private key if node is the leader
-func (consensus *Consensus) GetConsensusLeaderPrivateKey() (*bls.PrivateKeyWrapper, error) {
+func (consensus *Consensus) GetConsensusLeaderPrivateKey() (*bls_interface.PrivateKeyWrapper, error) {
 	return consensus.GetLeaderPrivateKey(consensus.LeaderPubKey.Object)
 }
 

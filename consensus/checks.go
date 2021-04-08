@@ -5,10 +5,9 @@ import (
 	"encoding/binary"
 
 	protobuf "github.com/golang/protobuf/proto"
-	libbls "github.com/harmony-one/bls/ffi/go/bls"
 	msg_pb "github.com/harmony-one/harmony/api/proto/message"
 	"github.com/harmony-one/harmony/core/types"
-	"github.com/harmony-one/harmony/crypto/bls"
+	"github.com/harmony-one/harmony/crypto/bls_interface"
 	"github.com/harmony-one/harmony/crypto/hash"
 	"github.com/pkg/errors"
 )
@@ -17,7 +16,7 @@ import (
 const MaxBlockNumDiff = 100
 
 // verifyMessageSig verify the signature of the message are valid from the signer's public key.
-func verifyMessageSig(signerPubKey *libbls.PublicKey, message *msg_pb.Message) error {
+func verifyMessageSig(signerPubKey *bls_interface.BlsPublicKey, message *msg_pb.Message) error {
 	signature := message.Signature
 	message.Signature = nil
 	messageBytes, err := protobuf.Marshal(message)
@@ -25,7 +24,7 @@ func verifyMessageSig(signerPubKey *libbls.PublicKey, message *msg_pb.Message) e
 		return err
 	}
 
-	msgSig := libbls.Sign{}
+	msgSig := bls_interface.BlsSign{}
 	err = msgSig.Deserialize(signature)
 	if err != nil {
 		return err
@@ -38,8 +37,8 @@ func verifyMessageSig(signerPubKey *libbls.PublicKey, message *msg_pb.Message) e
 	return nil
 }
 
-func (consensus *Consensus) senderKeySanityChecks(msg *msg_pb.Message, senderKey *bls.SerializedPublicKey) bool {
-	pubkey, err := bls.BytesToBLSPublicKey(senderKey[:])
+func (consensus *Consensus) senderKeySanityChecks(msg *msg_pb.Message, senderKey *bls_interface.SerializedPublicKey) bool {
+	pubkey, err := bls_interface.BytesToBLSPublicKey(senderKey[:])
 	if err != nil {
 		return false
 	}

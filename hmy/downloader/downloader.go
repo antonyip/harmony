@@ -11,7 +11,7 @@ import (
 
 	"github.com/harmony-one/harmony/core"
 	"github.com/harmony-one/harmony/core/types"
-	"github.com/harmony-one/harmony/crypto/bls"
+	"github.com/harmony-one/harmony/crypto/bls_interface"
 	"github.com/harmony-one/harmony/internal/chain"
 	nodeconfig "github.com/harmony-one/harmony/internal/configs/node"
 	"github.com/harmony-one/harmony/internal/utils"
@@ -286,7 +286,7 @@ func verifyAndInsertBlocks(bc blockChain, blocks types.Blocks) (int, error) {
 
 func verifyAndInsertBlock(bc blockChain, block *types.Block, nextBlocks ...*types.Block) error {
 	var (
-		sigBytes bls.SerializedSignature
+		sigBytes bls_interface.SerializedSignature
 		bitmap   []byte
 		err      error
 	)

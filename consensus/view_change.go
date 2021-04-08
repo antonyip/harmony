@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/harmony-one/harmony/crypto/bls"
+	"github.com/harmony-one/harmony/crypto/bls_interface"
 
 	"github.com/ethereum/go-ethereum/common"
 	msg_pb "github.com/harmony-one/harmony/api/proto/message"
@@ -153,13 +153,13 @@ func (consensus *Consensus) getNextViewID() (uint64, time.Duration) {
 // It reads the current leader's pubkey based on the blockchain data and returns
 // the next leader based on the gap of the viewID of the view change and the last
 // know view id of the block.
-func (consensus *Consensus) getNextLeaderKey(viewID uint64) *bls.PublicKeyWrapper {
+func (consensus *Consensus) getNextLeaderKey(viewID uint64) *bls_interface.PublicKeyWrapper {
 	gap := 1
 
 	if viewID > consensus.GetCurBlockViewID() {
 		gap = int(viewID - consensus.GetCurBlockViewID())
 	}
-	var lastLeaderPubKey *bls.PublicKeyWrapper
+	var lastLeaderPubKey *bls_interface.PublicKeyWrapper
 	var err error
 	epoch := big.NewInt(0)
 	if consensus.Blockchain == nil {
@@ -292,7 +292,7 @@ func (consensus *Consensus) startViewChange() {
 }
 
 // startNewView stops the current view change
-func (consensus *Consensus) startNewView(viewID uint64, newLeaderPriKey *bls.PrivateKeyWrapper, reset bool) error {
+func (consensus *Consensus) startNewView(viewID uint64, newLeaderPriKey *bls_interface.PrivateKeyWrapper, reset bool) error {
 	if !consensus.IsViewChangingMode() {
 		return errors.New("not in view changing mode anymore")
 	}
@@ -514,7 +514,7 @@ func (consensus *Consensus) onNewView(recvMsg *FBFTMessage) {
 		preparedMsg.Payload = make([]byte, len(recvMsg.Payload)-32)
 		copy(preparedMsg.Payload[:], recvMsg.Payload[32:])
 
-		preparedMsg.SenderPubkeys = []*bls.PublicKeyWrapper{senderKey}
+		preparedMsg.SenderPubkeys = []*bls_interface.PublicKeyWrapper{senderKey}
 		consensus.FBFTLog.AddVerifiedMessage(&preparedMsg)
 
 		if preparedBlock != nil {

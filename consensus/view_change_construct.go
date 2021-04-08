@@ -10,10 +10,8 @@ import (
 	"github.com/harmony-one/harmony/consensus/quorum"
 	"github.com/harmony-one/harmony/core/types"
 
-	bls_core "github.com/harmony-one/bls/ffi/go/bls"
 	msg_pb "github.com/harmony-one/harmony/api/proto/message"
-	"github.com/harmony-one/harmony/crypto/bls"
-	bls_cosi "github.com/harmony-one/harmony/crypto/bls"
+	"github.com/harmony-one/harmony/crypto/bls_interface"
 	"github.com/harmony-one/harmony/internal/chain"
 	"github.com/harmony-one/harmony/internal/utils"
 	"github.com/harmony-one/harmony/multibls"
@@ -23,7 +21,7 @@ import (
 
 const (
 	// ValidPayloadLength is the valid length for viewchange payload
-	ValidPayloadLength = 32 + bls.BLSSignatureSizeInBytes
+	ValidPayloadLength = 32 + bls_interface.BLSSignatureSizeInBytes
 )
 
 // viewChange encapsulate all the view change related data structure and functions
@@ -34,14 +32,14 @@ type viewChange struct {
 	// after one of viewID has enough votes, we can reset and clean the map
 	// honest nodes will never double votes on different viewID
 	// bhpSigs: blockHashPreparedSigs is the signature on m1 type message
-	bhpSigs map[uint64]map[string]*bls_core.Sign
+	bhpSigs map[uint64]map[string]*bls_interface.BlsSign
 	// nilSigs: there is no prepared message when view change,
 	// it's signature on m2 type (i.e. nil) messages
-	nilSigs      map[uint64]map[string]*bls_core.Sign
-	viewIDSigs   map[uint64]map[string]*bls_core.Sign
-	bhpBitmap    map[uint64]*bls_cosi.Mask
-	nilBitmap    map[uint64]*bls_cosi.Mask
-	viewIDBitmap map[uint64]*bls_cosi.Mask
+	nilSigs      map[uint64]map[string]*bls_interface.BlsSign
+	viewIDSigs   map[uint64]map[string]*bls_interface.BlsSign
+	bhpBitmap    map[uint64]*bls_interface.Mask
+	nilBitmap    map[uint64]*bls_interface.Mask
+	viewIDBitmap map[uint64]*bls_interface.Mask
 	newViewMsg   map[uint64]map[string]uint64
 
 	m1Payload []byte // message payload for type m1 := |vcBlockHash|prepared_agg_sigs|prepared_bitmap|, new leader only need one
@@ -65,24 +63,24 @@ func (vc *viewChange) SetVerifyBlock(verifyBlock VerifyBlockFunc) {
 // AddViewIDKeyIfNotExist ..
 func (vc *viewChange) AddViewIDKeyIfNotExist(viewID uint64, members multibls.PublicKeys) {
 	if _, ok := vc.bhpSigs[viewID]; !ok {
-		vc.bhpSigs[viewID] = map[string]*bls_core.Sign{}
+		vc.bhpSigs[viewID] = map[string]*bls_interface.BlsSign{}
 	}
 	if _, ok := vc.nilSigs[viewID]; !ok {
-		vc.nilSigs[viewID] = map[string]*bls_core.Sign{}
+		vc.nilSigs[viewID] = map[string]*bls_interface.BlsSign{}
 	}
 	if _, ok := vc.viewIDSigs[viewID]; !ok {
-		vc.viewIDSigs[viewID] = map[string]*bls_core.Sign{}
+		vc.viewIDSigs[viewID] = map[string]*bls_interface.BlsSign{}
 	}
 	if _, ok := vc.bhpBitmap[viewID]; !ok {
-		bhpBitmap, _ := bls_cosi.NewMask(members, nil)
+		bhpBitmap, _ := bls_interface.NewMask(members, nil)
 		vc.bhpBitmap[viewID] = bhpBitmap
 	}
 	if _, ok := vc.nilBitmap[viewID]; !ok {
-		nilBitmap, _ := bls_cosi.NewMask(members, nil)
+		nilBitmap, _ := bls_interface.NewMask(members, nil)
 		vc.nilBitmap[viewID] = nilBitmap
 	}
 	if _, ok := vc.viewIDBitmap[viewID]; !ok {
-		viewIDBitmap, _ := bls_cosi.NewMask(members, nil)
+		viewIDBitmap, _ := bls_interface.NewMask(members, nil)
 		vc.viewIDBitmap[viewID] = viewIDBitmap
 	}
 }
@@ -90,12 +88,12 @@ func (vc *viewChange) AddViewIDKeyIfNotExist(viewID uint64, members multibls.Pub
 // Reset reset the state for viewchange
 func (vc *viewChange) Reset() {
 	vc.m1Payload = []byte{}
-	vc.bhpSigs = map[uint64]map[string]*bls_core.Sign{}
-	vc.nilSigs = map[uint64]map[string]*bls_core.Sign{}
-	vc.viewIDSigs = map[uint64]map[string]*bls_core.Sign{}
-	vc.bhpBitmap = map[uint64]*bls_cosi.Mask{}
-	vc.nilBitmap = map[uint64]*bls_cosi.Mask{}
-	vc.viewIDBitmap = map[uint64]*bls_cosi.Mask{}
+	vc.bhpSigs = map[uint64]map[string]*bls_interface.BlsSign{}
+	vc.nilSigs = map[uint64]map[string]*bls_interface.BlsSign{}
+	vc.viewIDSigs = map[uint64]map[string]*bls_interface.BlsSign{}
+	vc.bhpBitmap = map[uint64]*bls_interface.Mask{}
+	vc.nilBitmap = map[uint64]*bls_interface.Mask{}
+	vc.viewIDBitmap = map[uint64]*bls_interface.Mask{}
 	vc.newViewMsg = map[uint64]map[string]uint64{}
 }
 
@@ -122,13 +120,13 @@ func (vc *viewChange) GetPreparedBlock(fbftlog *FBFTLog) ([]byte, []byte) {
 
 // GetM2Bitmap returns the nilBitmap as M2Bitmap
 func (vc *viewChange) GetM2Bitmap(viewID uint64) ([]byte, []byte) {
-	sig2arr := []*bls_core.Sign{}
+	sig2arr := []*bls_interface.BlsSign{}
 	for _, sig := range vc.nilSigs[viewID] {
 		sig2arr = append(sig2arr, sig)
 	}
 
 	if len(sig2arr) > 0 {
-		m2Sig := bls_cosi.AggregateSig(sig2arr)
+		m2Sig := bls_interface.AggregateSig(sig2arr)
 		vc.getLogger().Info().Int("len", len(sig2arr)).Msg("[GetM2Bitmap] M2 (NIL) type signatures")
 		return m2Sig.Serialize(), vc.nilBitmap[viewID].Bitmap
 	}
@@ -138,13 +136,13 @@ func (vc *viewChange) GetM2Bitmap(viewID uint64) ([]byte, []byte) {
 
 // GetM3Bitmap returns the viewIDBitmap as M3Bitmap
 func (vc *viewChange) GetM3Bitmap(viewID uint64) ([]byte, []byte) {
-	sig3arr := []*bls_core.Sign{}
+	sig3arr := []*bls_interface.BlsSign{}
 	for _, sig := range vc.viewIDSigs[viewID] {
 		sig3arr = append(sig3arr, sig)
 	}
 	// even we check here for safty, m3 type signatures must >= 2f+1
 	if len(sig3arr) > 0 {
-		m3Sig := bls_cosi.AggregateSig(sig3arr)
+		m3Sig := bls_interface.AggregateSig(sig3arr)
 		vc.getLogger().Info().Int("len", len(sig3arr)).Msg("[GetM3Bitmap] M3 (ViewID) type signatures")
 		return m3Sig.Serialize(), vc.viewIDBitmap[viewID].Bitmap
 	}
@@ -287,11 +285,11 @@ func (vc *viewChange) ProcessViewChangeMsg(
 			Msg("[ProcessViewChangeMsg] Add M1 (prepared) type message")
 
 		if _, ok := vc.bhpSigs[recvMsg.ViewID]; !ok {
-			vc.bhpSigs[recvMsg.ViewID] = map[string]*bls_core.Sign{}
+			vc.bhpSigs[recvMsg.ViewID] = map[string]*bls_interface.BlsSign{}
 		}
 		vc.bhpSigs[recvMsg.ViewID][senderKeyStr] = recvMsg.ViewchangeSig
 		if _, ok := vc.bhpBitmap[recvMsg.ViewID]; !ok {
-			bhpBitmap, _ := bls_cosi.NewMask(decider.Participants(), nil)
+			bhpBitmap, _ := bls_interface.NewMask(decider.Participants(), nil)
 			vc.bhpBitmap[recvMsg.ViewID] = bhpBitmap
 		}
 		vc.bhpBitmap[recvMsg.ViewID].SetKey(senderKey.Bytes, true) // Set the bitmap indicating that this validator signed.
@@ -301,12 +299,12 @@ func (vc *viewChange) ProcessViewChangeMsg(
 			Msg("[ProcessViewChangeMsg] Add M3 (ViewID) type message")
 
 		if _, ok := vc.viewIDSigs[recvMsg.ViewID]; !ok {
-			vc.viewIDSigs[recvMsg.ViewID] = map[string]*bls_core.Sign{}
+			vc.viewIDSigs[recvMsg.ViewID] = map[string]*bls_interface.BlsSign{}
 		}
 		vc.viewIDSigs[recvMsg.ViewID][senderKeyStr] = recvMsg.ViewidSig
 
 		if _, ok := vc.viewIDBitmap[recvMsg.ViewID]; !ok {
-			viewIDBitmap, _ := bls_cosi.NewMask(decider.Participants(), nil)
+			viewIDBitmap, _ := bls_interface.NewMask(decider.Participants(), nil)
 			vc.viewIDBitmap[recvMsg.ViewID] = viewIDBitmap
 		}
 		// Set the bitmap indicating that this validator signed.
@@ -325,7 +323,7 @@ func (vc *viewChange) ProcessViewChangeMsg(
 			preparedMsg.Payload = make([]byte, len(recvMsg.Payload)-32)
 			copy(preparedMsg.Payload[:], recvMsg.Payload[32:])
 
-			preparedMsg.SenderPubkeys = []*bls.PublicKeyWrapper{recvMsg.LeaderPubkey}
+			preparedMsg.SenderPubkeys = []*bls_interface.PublicKeyWrapper{recvMsg.LeaderPubkey}
 			vc.getLogger().Info().Msg("[ProcessViewChangeMsg] New Leader Prepared Message Added")
 			fbftlog.AddVerifiedMessage(&preparedMsg)
 			fbftlog.AddBlock(preparedBlock)
@@ -346,12 +344,12 @@ func (vc *viewChange) ProcessViewChangeMsg(
 		Msg("[ProcessViewChangeMsg] Add M2 (NIL) type message")
 
 	if _, ok := vc.nilSigs[recvMsg.ViewID]; !ok {
-		vc.nilSigs[recvMsg.ViewID] = map[string]*bls_core.Sign{}
+		vc.nilSigs[recvMsg.ViewID] = map[string]*bls_interface.BlsSign{}
 	}
 	vc.nilSigs[recvMsg.ViewID][senderKeyStr] = recvMsg.ViewchangeSig
 
 	if _, ok := vc.nilBitmap[recvMsg.ViewID]; !ok {
-		nilBitmap, _ := bls_cosi.NewMask(decider.Participants(), nil)
+		nilBitmap, _ := bls_interface.NewMask(decider.Participants(), nil)
 		vc.nilBitmap[recvMsg.ViewID] = nilBitmap
 	}
 	vc.nilBitmap[recvMsg.ViewID].SetKey(senderKey.Bytes, true) // Set the bitmap indicating that this validator signed.
@@ -361,13 +359,13 @@ func (vc *viewChange) ProcessViewChangeMsg(
 		Msg("[ProcessViewChangeMsg] Add M3 (ViewID) type message")
 
 	if _, ok := vc.viewIDSigs[recvMsg.ViewID]; !ok {
-		vc.viewIDSigs[recvMsg.ViewID] = map[string]*bls_core.Sign{}
+		vc.viewIDSigs[recvMsg.ViewID] = map[string]*bls_interface.BlsSign{}
 	}
 	vc.viewIDSigs[recvMsg.ViewID][senderKeyStr] = recvMsg.ViewidSig
 
 	// Set the bitmap indicating that this validator signed.
 	if _, ok := vc.viewIDBitmap[recvMsg.ViewID]; !ok {
-		viewIDBitmap, _ := bls_cosi.NewMask(decider.Participants(), nil)
+		viewIDBitmap, _ := bls_interface.NewMask(decider.Participants(), nil)
 		vc.viewIDBitmap[recvMsg.ViewID] = viewIDBitmap
 	}
 	vc.viewIDBitmap[recvMsg.ViewID].SetKey(senderKey.Bytes, true)
@@ -412,7 +410,7 @@ func (vc *viewChange) InitPayload(
 					for _, key := range privKeys {
 						// update the dictionary key if the viewID is first time received
 						if _, ok := vc.bhpBitmap[viewID]; !ok {
-							bhpBitmap, _ := bls_cosi.NewMask(members, nil)
+							bhpBitmap, _ := bls_interface.NewMask(members, nil)
 							vc.bhpBitmap[viewID] = bhpBitmap
 						}
 						if err := vc.bhpBitmap[viewID].SetKey(key.Pub.Bytes, true); err != nil {
@@ -420,7 +418,7 @@ func (vc *viewChange) InitPayload(
 							continue
 						}
 						if _, ok := vc.bhpSigs[viewID]; !ok {
-							vc.bhpSigs[viewID] = map[string]*bls_core.Sign{}
+							vc.bhpSigs[viewID] = map[string]*bls_interface.BlsSign{}
 						}
 						vc.bhpSigs[viewID][key.Pub.Bytes.Hex()] = key.Pri.SignHash(msgToSign)
 					}
@@ -436,7 +434,7 @@ func (vc *viewChange) InitPayload(
 			vc.getLogger().Info().Uint64("viewID", viewID).Uint64("blockNum", blockNum).Msg("[InitPayload] add my M2 (NIL) type messaage")
 			for _, key := range privKeys {
 				if _, ok := vc.nilBitmap[viewID]; !ok {
-					nilBitmap, _ := bls_cosi.NewMask(members, nil)
+					nilBitmap, _ := bls_interface.NewMask(members, nil)
 					vc.nilBitmap[viewID] = nilBitmap
 				}
 				if err := vc.nilBitmap[viewID].SetKey(key.Pub.Bytes, true); err != nil {
@@ -444,7 +442,7 @@ func (vc *viewChange) InitPayload(
 					continue
 				}
 				if _, ok := vc.nilSigs[viewID]; !ok {
-					vc.nilSigs[viewID] = map[string]*bls_core.Sign{}
+					vc.nilSigs[viewID] = map[string]*bls_interface.BlsSign{}
 				}
 				vc.nilSigs[viewID][key.Pub.Bytes.Hex()] = key.Pri.SignHash(NIL)
 			}
@@ -467,7 +465,7 @@ func (vc *viewChange) InitPayload(
 		vc.getLogger().Info().Uint64("viewID", viewID).Uint64("blockNum", blockNum).Msg("[InitPayload] add my M3 (ViewID) type messaage")
 		for _, key := range privKeys {
 			if _, ok := vc.viewIDBitmap[viewID]; !ok {
-				viewIDBitmap, _ := bls_cosi.NewMask(members, nil)
+				viewIDBitmap, _ := bls_interface.NewMask(members, nil)
 				vc.viewIDBitmap[viewID] = viewIDBitmap
 			}
 			if err := vc.viewIDBitmap[viewID].SetKey(key.Pub.Bytes, true); err != nil {
@@ -475,7 +473,7 @@ func (vc *viewChange) InitPayload(
 				continue
 			}
 			if _, ok := vc.viewIDSigs[viewID]; !ok {
-				vc.viewIDSigs[viewID] = map[string]*bls_core.Sign{}
+				vc.viewIDSigs[viewID] = map[string]*bls_interface.BlsSign{}
 			}
 			vc.viewIDSigs[viewID][key.Pub.Bytes.Hex()] = key.Pri.SignHash(viewIDBytes)
 		}
@@ -496,7 +494,7 @@ func (vc *viewChange) IsM1PayloadEmpty() bool {
 }
 
 // GetViewIDBitmap returns the viewIDBitmap
-func (vc *viewChange) GetViewIDBitmap(viewID uint64) *bls_cosi.Mask {
+func (vc *viewChange) GetViewIDBitmap(viewID uint64) *bls_interface.Mask {
 	return vc.viewIDBitmap[viewID]
 }
 

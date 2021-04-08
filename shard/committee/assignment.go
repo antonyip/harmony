@@ -6,10 +6,9 @@ import (
 
 	"github.com/harmony-one/harmony/core/state"
 
-	"github.com/harmony-one/harmony/crypto/bls"
+	"github.com/harmony-one/harmony/crypto/bls_interface"
 
 	"github.com/ethereum/go-ethereum/common"
-	bls_core "github.com/harmony-one/bls/ffi/go/bls"
 	"github.com/harmony-one/harmony/block"
 	"github.com/harmony-one/harmony/core/types"
 	common2 "github.com/harmony-one/harmony/internal/common"
@@ -133,18 +132,18 @@ func prepareOrders(
 	stakedReader StakingCandidatesReader,
 ) (map[common.Address]*effective.SlotOrder, error) {
 	candidates := stakedReader.ValidatorCandidates()
-	blsKeys := map[bls.SerializedPublicKey]struct{}{}
+	blsKeys := map[bls_interface.SerializedPublicKey]struct{}{}
 	essentials := map[common.Address]*effective.SlotOrder{}
 	totalStaked, tempZero := big.NewInt(0), numeric.ZeroDec()
 
 	// Avoid duplicate BLS keys as harmony nodes
 	instance := shard.Schedule.InstanceForEpoch(stakedReader.CurrentBlock().Epoch())
 	for _, account := range instance.HmyAccounts() {
-		pub := &bls_core.PublicKey{}
+		pub := &bls_interface.BlsPublicKey{}
 		if err := pub.DeserializeHexStr(account.BLSPublicKey); err != nil {
 			continue
 		}
-		pubKey := bls.SerializedPublicKey{}
+		pubKey := bls_interface.SerializedPublicKey{}
 		if err := pubKey.FromLibBLSPublicKey(pub); err != nil {
 			continue
 		}
@@ -281,9 +280,9 @@ func preStakingEnabledCommittee(s shardingconfig.Instance) (*shard.State, error)
 		com := shard.Committee{ShardID: uint32(i)}
 		for j := 0; j < shardHarmonyNodes; j++ {
 			index := i + j*shardNum // The initial account to use for genesis nodes
-			pub := &bls_core.PublicKey{}
+			pub := &bls_interface.BlsPublicKey{}
 			pub.DeserializeHexStr(hmyAccounts[index].BLSPublicKey)
-			pubKey := bls.SerializedPublicKey{}
+			pubKey := bls_interface.SerializedPublicKey{}
 			pubKey.FromLibBLSPublicKey(pub)
 			// TODO: directly read address for bls too
 			addr, err := common2.ParseAddr(hmyAccounts[index].Address)
@@ -300,9 +299,9 @@ func preStakingEnabledCommittee(s shardingconfig.Instance) (*shard.State, error)
 		// add FN runner's key
 		for j := shardHarmonyNodes; j < shardSize; j++ {
 			index := i + (j-shardHarmonyNodes)*shardNum
-			pub := &bls_core.PublicKey{}
+			pub := &bls_interface.BlsPublicKey{}
 			pub.DeserializeHexStr(fnAccounts[index].BLSPublicKey)
-			pubKey := bls.SerializedPublicKey{}
+			pubKey := bls_interface.SerializedPublicKey{}
 			pubKey.FromLibBLSPublicKey(pub)
 			// TODO: directly read address for bls too
 			addr, err := common2.ParseAddr(fnAccounts[index].Address)
@@ -334,11 +333,11 @@ func eposStakedCommittee(
 		shardState.Shards[i] = shard.Committee{uint32(i), shard.SlotList{}}
 		for j := 0; j < shardHarmonyNodes; j++ {
 			index := i + j*shardCount
-			pub := &bls_core.PublicKey{}
+			pub := &bls_interface.BlsPublicKey{}
 			if err := pub.DeserializeHexStr(hAccounts[index].BLSPublicKey); err != nil {
 				return nil, err
 			}
-			pubKey := bls.SerializedPublicKey{}
+			pubKey := bls_interface.SerializedPublicKey{}
 			if err := pubKey.FromLibBLSPublicKey(pub); err != nil {
 				return nil, err
 			}

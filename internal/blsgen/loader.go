@@ -3,9 +3,8 @@ package blsgen
 import (
 	"errors"
 	"fmt"
-
-	bls_core "github.com/harmony-one/bls/ffi/go/bls"
 	"github.com/harmony-one/harmony/multibls"
+	"github.com/harmony-one/harmony/crypto/bls_interface"
 )
 
 // LoadKeys load all BLS keys with the given config. If loading keys from files, the
@@ -82,7 +81,7 @@ func (cfg *Config) getKmsProviderConfig() kmsDecrypterConfig {
 //   kmsDecrypter  - decrypt with aws kms service for file name with extension .bls
 type keyDecrypter interface {
 	extension() string
-	decryptFile(keyFile string) (*bls_core.SecretKey, error)
+	decryptFile(keyFile string) (*bls_interface.BlsSecretKey, error)
 }
 
 func getKeyDecrypters(cfg Config) ([]keyDecrypter, error) {

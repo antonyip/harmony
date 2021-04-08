@@ -8,7 +8,7 @@ import (
 
 	"github.com/harmony-one/harmony/consensus"
 
-	"github.com/harmony-one/harmony/crypto/bls"
+	"github.com/harmony-one/harmony/crypto/bls_interface"
 
 	staking "github.com/harmony-one/harmony/staking/types"
 
@@ -80,7 +80,7 @@ func (node *Node) WaitForConsensusReadyV2(readySignal chan consensus.ProposalTyp
 							}
 						case commitSigs := <-commitSigsChan:
 							utils.Logger().Info().Msg("[ProposeNewBlock] received commit sigs asynchronously")
-							if len(commitSigs) > bls.BLSSignatureSizeInBytes {
+							if len(commitSigs) > bls_interface.BLSSignatureSizeInBytes {
 								newCommitSigsChan <- commitSigs
 							}
 						}

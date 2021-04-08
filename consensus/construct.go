@@ -6,9 +6,8 @@ import (
 
 	protobuf "github.com/golang/protobuf/proto"
 
-	"github.com/harmony-one/harmony/crypto/bls"
+	"github.com/harmony-one/harmony/crypto/bls_interface"
 
-	bls_core "github.com/harmony-one/bls/ffi/go/bls"
 	"github.com/harmony-one/harmony/api/proto"
 	msg_pb "github.com/harmony-one/harmony/api/proto/message"
 	"github.com/harmony-one/harmony/consensus/quorum"
@@ -22,7 +21,7 @@ type NetworkMessage struct {
 	MessageType                msg_pb.MessageType
 	Bytes                      []byte
 	FBFTMsg                    *FBFTMessage
-	OptionalAggregateSignature *bls_core.Sign
+	OptionalAggregateSignature *bls_interface.BlsSign
 }
 
 // Populates the common basic fields for all consensus message.
@@ -49,7 +48,7 @@ func (consensus *Consensus) populateMessageFieldsAndSendersBitmap(
 
 // Populates the common basic fields for the consensus message and single sender.
 func (consensus *Consensus) populateMessageFieldsAndSender(
-	request *msg_pb.ConsensusRequest, blockHash []byte, pubKey bls.SerializedPublicKey,
+	request *msg_pb.ConsensusRequest, blockHash []byte, pubKey bls_interface.SerializedPublicKey,
 ) *msg_pb.ConsensusRequest {
 	consensus.populateMessageFields(request, blockHash)
 	// sender address
@@ -59,7 +58,7 @@ func (consensus *Consensus) populateMessageFieldsAndSender(
 
 // construct is the single creation point of messages intended for the wire.
 func (consensus *Consensus) construct(
-	p msg_pb.MessageType, payloadForSign []byte, priKeys []*bls.PrivateKeyWrapper,
+	p msg_pb.MessageType, payloadForSign []byte, priKeys []*bls_interface.PrivateKeyWrapper,
 ) (*NetworkMessage, error) {
 	if len(priKeys) == 0 {
 		return nil, errors.New("no elected bls keys provided")
@@ -73,7 +72,7 @@ func (consensus *Consensus) construct(
 	}
 	var (
 		consensusMsg *msg_pb.ConsensusRequest
-		aggSig       *bls_core.Sign
+		aggSig       *bls_interface.BlsSign
 	)
 
 	if len(priKeys) == 1 {
@@ -82,7 +81,7 @@ func (consensus *Consensus) construct(
 		)
 	} else {
 		// TODO: use a persistent bitmap to report bitmap
-		mask, err := bls.NewMask(consensus.Decider.Participants(), nil)
+		mask, err := bls_interface.NewMask(consensus.Decider.Participants(), nil)
 		if err != nil {
 			utils.Logger().Warn().Err(err).Msg("unable to setup mask for multi-sig message")
 			return nil, err
@@ -102,7 +101,7 @@ func (consensus *Consensus) construct(
 		consensusMsg.Payload = consensus.blockHash[:]
 	case msg_pb.MessageType_PREPARE:
 		needMsgSig = false
-		sig := bls_core.Sign{}
+		sig := bls_interface.BlsSign{}
 		for _, priKey := range priKeys {
 			if s := priKey.Pri.SignHash(consensusMsg.BlockHash); s != nil {
 				sig.Add(s)
@@ -111,7 +110,7 @@ func (consensus *Consensus) construct(
 		consensusMsg.Payload = sig.Serialize()
 	case msg_pb.MessageType_COMMIT:
 		needMsgSig = false
-		sig := bls_core.Sign{}
+		sig := bls_interface.BlsSign{}
 		for _, priKey := range priKeys {
 			if s := priKey.Pri.SignHash(payloadForSign); s != nil {
 				sig.Add(s)

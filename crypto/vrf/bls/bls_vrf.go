@@ -4,8 +4,7 @@ import (
 	"crypto"
 	"crypto/sha256"
 	"errors"
-
-	"github.com/harmony-one/bls/ffi/go/bls"
+	"github.com/harmony-one/harmony/crypto/bls_interface"
 	"github.com/harmony-one/harmony/crypto/vrf"
 )
 
@@ -16,16 +15,16 @@ var (
 
 // PublicKey holds a public VRF key.
 type PublicKey struct {
-	*bls.PublicKey
+	*bls_interface.BlsPublicKey
 }
 
 // PrivateKey holds a private VRF key.
 type PrivateKey struct {
-	*bls.SecretKey
+	*bls_interface.BlsSecretKey
 }
 
 func init() {
-	bls.Init(bls.BLS12_381)
+	bls_interface.Init()
 }
 
 // Public returns the corresponding public key as bytes.
@@ -44,12 +43,12 @@ func (pk *PublicKey) Deserialize(data []byte) {
 }
 
 // NewVRFVerifier creates a verifier object from a public key.
-func NewVRFVerifier(pubkey *bls.PublicKey) vrf.PublicKey {
+func NewVRFVerifier(pubkey *bls_interface.BlsPublicKey) vrf.PublicKey {
 	return &PublicKey{pubkey}
 }
 
 // NewVRFSigner creates a signer object from a private key.
-func NewVRFSigner(seck *bls.SecretKey) vrf.PrivateKey {
+func NewVRFSigner(seck *bls_interface.BlsSecretKey) vrf.PrivateKey {
 	return &PrivateKey{seck}
 }
 
@@ -81,7 +80,7 @@ func (pk *PublicKey) ProofToHash(alpha, pi []byte) ([32]byte, error) {
 		return nilIndex, ErrInvalidVRF
 	}
 
-	msgSig := bls.Sign{}
+	msgSig := bls_interface.BlsSign{}
 
 	err := msgSig.Deserialize(pi)
 
@@ -90,7 +89,9 @@ func (pk *PublicKey) ProofToHash(alpha, pi []byte) ([32]byte, error) {
 	}
 
 	msgHash := sha256.Sum256(alpha)
-	if !msgSig.VerifyHash(pk.PublicKey, msgHash[:]) {
+	tmpPublicKey := &bls_interface.BlsPublicKey{}
+	tmpPublicKey.DeserializeHexStr(pk.PublicKey.SerializeToHexStr())
+	if !msgSig.VerifyHash(tmpPublicKey, msgHash[:]) {
 		return nilIndex, ErrInvalidVRF
 	}
 

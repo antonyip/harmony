@@ -9,7 +9,7 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	ethtypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/harmony-one/harmony/core/types"
-	"github.com/harmony-one/harmony/crypto/bls"
+	"github.com/harmony-one/harmony/crypto/bls_interface"
 	internal_common "github.com/harmony-one/harmony/internal/common"
 	rpc_common "github.com/harmony-one/harmony/rpc/common"
 	staking "github.com/harmony-one/harmony/staking/types"
@@ -123,7 +123,7 @@ type CreateValidatorMsg struct {
 	Identity           string                    `json:"identity"`
 	SecurityContact    string                    `json:"securityContact"`
 	Details            string                    `json:"details"`
-	SlotPubKeys        []bls.SerializedPublicKey `json:"slotPubKeys"`
+	SlotPubKeys        []bls_interface.SerializedPublicKey `json:"slotPubKeys"`
 }
 
 // EditValidatorMsg represents a staking transaction's edit validator directive that
@@ -138,8 +138,8 @@ type EditValidatorMsg struct {
 	Identity           string                   `json:"identity"`
 	SecurityContact    string                   `json:"securityContact"`
 	Details            string                   `json:"details"`
-	SlotPubKeyToAdd    *bls.SerializedPublicKey `json:"slotPubKeyToAdd"`
-	SlotPubKeyToRemove *bls.SerializedPublicKey `json:"slotPubKeyToRemove"`
+	SlotPubKeyToAdd    *bls_interface.SerializedPublicKey `json:"slotPubKeyToAdd"`
+	SlotPubKeyToRemove *bls_interface.SerializedPublicKey `json:"slotPubKeyToRemove"`
 }
 
 // CollectRewardsMsg represents a staking transaction's collect rewards directive that

@@ -4,15 +4,14 @@ import (
 	"context"
 	"encoding/binary"
 	"fmt"
-	"net"
+	//"net"
 	"os"
 	"runtime"
 	"strings"
 	"sync"
 
 	"github.com/libp2p/go-libp2p-core/protocol"
-
-	"github.com/harmony-one/bls/ffi/go/bls"
+	"github.com/harmony-one/harmony/crypto/bls_interface"
 	nodeconfig "github.com/harmony-one/harmony/internal/configs/node"
 	"github.com/harmony-one/harmony/internal/utils"
 	"github.com/harmony-one/harmony/p2p/discovery"
@@ -56,7 +55,7 @@ type Host interface {
 type Peer struct {
 	IP              string         // IP address of the peer
 	Port            string         // Port number of the peer
-	ConsensusPubKey *bls.PublicKey // Public key of the peer, used for consensus signing
+	ConsensusPubKey *bls_interface.BlsPublicKey // Public key of the peer, used for consensus signing
 	Addrs           []ma.Multiaddr // MultiAddress of the peer
 	PeerID          libp2p_peer.ID // PeerID, the pubkey for communication
 }
@@ -165,12 +164,13 @@ func NewHost(cfg HostConfig) (Host, error) {
 		ctx:       ctx,
 		cancel:    cancel,
 	}
-
+/*
 	utils.Logger().Info().
 		Str("self", net.JoinHostPort(self.IP, self.Port)).
 		Interface("PeerID", self.PeerID).
 		Str("PubKey", self.ConsensusPubKey.SerializeToHexStr()).
 		Msg("libp2p host ready")
+		*/
 	return h, nil
 }
 

@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	msg_pb "github.com/harmony-one/harmony/api/proto/message"
-	"github.com/harmony-one/harmony/crypto/bls"
+	"github.com/harmony-one/harmony/crypto/bls_interface"
 )
 
 func TestFBFTLog_id(t *testing.T) {

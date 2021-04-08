@@ -1,4 +1,4 @@
-package bls
+package bls_interface
 
 import (
 	"strings"

@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/harmony-one/harmony/crypto/bls"
+	"github.com/harmony-one/harmony/crypto/bls_interface"
 
 	shardingconfig "github.com/harmony-one/harmony/internal/configs/sharding"
 

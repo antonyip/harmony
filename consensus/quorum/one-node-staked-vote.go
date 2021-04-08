@@ -5,16 +5,14 @@ import (
 	"encoding/json"
 	"math/big"
 
-	"github.com/harmony-one/harmony/crypto/bls"
+	"github.com/harmony-one/harmony/crypto/bls_interface"
 
 	"github.com/harmony-one/harmony/internal/utils"
 
 	"github.com/ethereum/go-ethereum/common"
-	bls_core "github.com/harmony-one/bls/ffi/go/bls"
 	"github.com/pkg/errors"
 
 	"github.com/harmony-one/harmony/consensus/votepower"
-	bls_cosi "github.com/harmony-one/harmony/crypto/bls"
 	common2 "github.com/harmony-one/harmony/internal/common"
 	"github.com/harmony-one/harmony/numeric"
 	"github.com/harmony-one/harmony/shard"
@@ -58,11 +56,11 @@ func (v *stakedVoteWeight) Policy() Policy {
 
 // AddNewVote ..
 func (v *stakedVoteWeight) AddNewVote(
-	p Phase, pubKeys []*bls_cosi.PublicKeyWrapper,
-	sig *bls_core.Sign, headerHash common.Hash,
+	p Phase, pubKeys []*bls_interface.PublicKeyWrapper,
+	sig *bls_interface.BlsSign, headerHash common.Hash,
 	height, viewID uint64) (*votepower.Ballot, error) {
 
-	pubKeysBytes := make([]bls.SerializedPublicKey, len(pubKeys))
+	pubKeysBytes := make([]bls_interface.SerializedPublicKey, len(pubKeys))
 	signerAddr := common.Address{}
 	for i, pubKey := range pubKeys {
 		voter, ok := v.roster.Voters[pubKey.Bytes]
@@ -150,7 +148,7 @@ func (v *stakedVoteWeight) IsQuorumAchieved(p Phase) bool {
 }
 
 // IsQuorumAchivedByMask ..
-func (v *stakedVoteWeight) IsQuorumAchievedByMask(mask *bls_cosi.Mask) bool {
+func (v *stakedVoteWeight) IsQuorumAchievedByMask(mask *bls_interface.Mask) bool {
 	threshold := v.QuorumThreshold()
 	if mask == nil {
 		return false
@@ -177,7 +175,7 @@ func (v *stakedVoteWeight) currentTotalPower(p Phase) (*numeric.Dec, error) {
 }
 
 // ComputeTotalPowerByMask computes the total power indicated by bitmap mask
-func (v *stakedVoteWeight) computeTotalPowerByMask(mask *bls_cosi.Mask) *numeric.Dec {
+func (v *stakedVoteWeight) computeTotalPowerByMask(mask *bls_interface.Mask) *numeric.Dec {
 	currentTotal := numeric.ZeroDec()
 
 	for key, i := range mask.PublicsIndex {
@@ -232,7 +230,7 @@ func (v *stakedVoteWeight) String() string {
 }
 
 // HACK later remove - unify votepower in UI (aka MarshalJSON)
-func (v *stakedVoteWeight) SetRawStake(key bls.SerializedPublicKey, d numeric.Dec) {
+func (v *stakedVoteWeight) SetRawStake(key bls_interface.SerializedPublicKey, d numeric.Dec) {
 	if voter, ok := v.roster.Voters[key]; ok {
 		voter.RawStake = d
 	}

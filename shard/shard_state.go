@@ -7,7 +7,7 @@ import (
 	"math/big"
 	"sort"
 
-	"github.com/harmony-one/harmony/crypto/bls"
+	"github.com/harmony-one/harmony/crypto/bls_interface"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/rlp"
@@ -19,7 +19,7 @@ import (
 )
 
 var (
-	emptyBLSPubKey = bls.SerializedPublicKey{}
+	emptyBLSPubKey = bls_interface.SerializedPublicKey{}
 	// ErrShardIDNotInSuperCommittee ..
 	ErrShardIDNotInSuperCommittee = errors.New("shardID not in super committee")
 )
@@ -33,7 +33,7 @@ type State struct {
 // Slot represents node id (BLS address)
 type Slot struct {
 	EcdsaAddress common.Address          `json:"ecdsa-address"`
-	BLSPublicKey bls.SerializedPublicKey `json:"bls-pubkey"`
+	BLSPublicKey bls_interface.SerializedPublicKey `json:"bls-pubkey"`
 	// nil means our node, 0 means not active, > 0 means staked node
 	EffectiveStake *numeric.Dec `json:"effective-stake" rlp:"nil"`
 }
@@ -67,7 +67,7 @@ type StateLegacy []CommitteeLegacy
 // SlotLegacy represents node id (BLS address)
 type SlotLegacy struct {
 	EcdsaAddress common.Address          `json:"ecdsa-address"`
-	BLSPublicKey bls.SerializedPublicKey `json:"bls-pubkey"`
+	BLSPublicKey bls_interface.SerializedPublicKey `json:"bls-pubkey"`
 }
 
 // SlotListLegacy is a list of SlotList.
@@ -273,7 +273,7 @@ func (ss *State) DeepCopy() *State {
 }
 
 // CompareBLSPublicKey compares two SerializedPublicKey, lexicographically.
-func CompareBLSPublicKey(k1, k2 bls.SerializedPublicKey) int {
+func CompareBLSPublicKey(k1, k2 bls_interface.SerializedPublicKey) int {
 	return bytes.Compare(k1[:], k2[:])
 }
 
@@ -327,19 +327,19 @@ func (c *Committee) Hash() common.Hash {
 }
 
 // BLSPublicKeys ..
-func (c *Committee) BLSPublicKeys() ([]bls.PublicKeyWrapper, error) {
+func (c *Committee) BLSPublicKeys() ([]bls_interface.PublicKeyWrapper, error) {
 	if c == nil {
 		return nil, ErrSubCommitteeNil
 	}
 
-	slice := make([]bls.PublicKeyWrapper, len(c.Slots))
+	slice := make([]bls_interface.PublicKeyWrapper, len(c.Slots))
 	for j := range c.Slots {
-		pubKey, err := bls.BytesToBLSPublicKey(c.Slots[j].BLSPublicKey[:])
+		pubKey, err := bls_interface.BytesToBLSPublicKey(c.Slots[j].BLSPublicKey[:])
 		if err != nil {
 			return nil, err
 		}
 
-		slice[j] = bls.PublicKeyWrapper{c.Slots[j].BLSPublicKey, pubKey}
+		slice[j] = bls_interface.PublicKeyWrapper{c.Slots[j].BLSPublicKey, pubKey}
 	}
 
 	return slice, nil
@@ -355,7 +355,7 @@ var (
 )
 
 // AddressForBLSKey ..
-func (c *Committee) AddressForBLSKey(key bls.SerializedPublicKey) (*common.Address, error) {
+func (c *Committee) AddressForBLSKey(key bls_interface.SerializedPublicKey) (*common.Address, error) {
 	if c == nil {
 		return nil, ErrSubCommitteeNil
 	}

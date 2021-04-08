@@ -1,4 +1,4 @@
-package bls
+package bls_interface
 
 import (
 	"github.com/harmony-one/bls/ffi/go/bls"
@@ -20,8 +20,8 @@ func init() {
 }
 
 // RandPrivateKey returns a random private key.
-func RandPrivateKey() *bls.SecretKey {
-	sec := bls.SecretKey{}
+func RandPrivateKey() *BlsSecretKey {
+	sec := BlsSecretKey{}
 	sec.SetByCSPRNG()
 	return &sec
 }
@@ -32,19 +32,19 @@ var (
 )
 
 // BytesToBLSPublicKey converts bytes into bls.PublicKey pointer.
-func BytesToBLSPublicKey(bytes []byte) (*bls.PublicKey, error) {
+func BytesToBLSPublicKey(bytes []byte) (*BlsPublicKey, error) {
 	if len(bytes) == 0 {
 		return nil, errEmptyInput
 	}
 	kkey := string(bytes)
 	if k, ok := BLSPubKeyCache.Get(kkey); ok {
-		if pk, ok := k.(bls.PublicKey); ok {
+		if pk, ok := k.(BlsPublicKey); ok {
 			return &pk, nil
 		}
 		return nil, errPubKeyCast
 	}
-	pubKey := &bls.PublicKey{}
-	err := pubKey.Deserialize(bytes)
+	pubKey := &BlsPublicKey{}
+	err := pubKey.PublicKey.Deserialize(bytes)
 
 	if err == nil {
 		BLSPubKeyCache.Add(kkey, *pubKey)
@@ -55,8 +55,8 @@ func BytesToBLSPublicKey(bytes []byte) (*bls.PublicKey, error) {
 }
 
 // AggregateSig aggregates all the BLS signature into a single multi-signature.
-func AggregateSig(sigs []*bls.Sign) *bls.Sign {
-	var aggregatedSig bls.Sign
+func AggregateSig(sigs []*BlsSign) *BlsSign {
+	var aggregatedSig BlsSign
 	for _, sig := range sigs {
 		aggregatedSig.Add(sig)
 	}
@@ -68,7 +68,7 @@ type Mask struct {
 	Bitmap          []byte
 	Publics         []*PublicKeyWrapper
 	PublicsIndex    map[SerializedPublicKey]int
-	AggregatePublic *bls.PublicKey
+	AggregatePublic *BlsPublicKey
 }
 
 // NewMask returns a new participation bitmask for cosigning where all
@@ -87,7 +87,7 @@ func NewMask(publics []PublicKeyWrapper, myKey *PublicKeyWrapper) (*Mask, error)
 		PublicsIndex: index,
 	}
 	m.Bitmap = make([]byte, m.Len())
-	m.AggregatePublic = &bls.PublicKey{}
+	m.AggregatePublic = &BlsPublicKey{}
 	if myKey != nil {
 		i, found := m.PublicsIndex[myKey.Bytes]
 		if found {
@@ -104,7 +104,7 @@ func NewMask(publics []PublicKeyWrapper, myKey *PublicKeyWrapper) (*Mask, error)
 // Clear clears the existing bits and aggregate public keys.
 func (m *Mask) Clear() {
 	m.Bitmap = make([]byte, m.Len())
-	m.AggregatePublic = &bls.PublicKey{}
+	m.AggregatePublic = &BlsPublicKey{}
 }
 
 // Mask returns a copy of the participation bitmask.
@@ -166,8 +166,8 @@ func (m *Mask) SetBit(i int, enable bool) error {
 
 // GetPubKeyFromMask will return pubkeys which masked either zero or one depending on the flag
 // it is used to show which signers are signed or not in the cosign message
-func (m *Mask) GetPubKeyFromMask(flag bool) []*bls.PublicKey {
-	pubKeys := []*bls.PublicKey{}
+func (m *Mask) GetPubKeyFromMask(flag bool) []*BlsPublicKey {
+	pubKeys := []*BlsPublicKey{}
 	for i := range m.Publics {
 		byt := i >> 3
 		msk := byte(1) << uint(i&7)

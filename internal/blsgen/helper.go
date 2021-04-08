@@ -4,9 +4,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-
-	bls_core "github.com/harmony-one/bls/ffi/go/bls"
 	"github.com/harmony-one/harmony/multibls"
+	"github.com/harmony-one/harmony/crypto/bls_interface"
 )
 
 // loadHelper defines the helper interface to load bls keys. Implemented by
@@ -21,7 +20,7 @@ type multiKeyLoader struct {
 	keyFiles   []string
 	decrypters map[string]keyDecrypter
 
-	loadedSecrets []*bls_core.SecretKey
+	loadedSecrets []*bls_interface.BlsSecretKey
 }
 
 func newMultiKeyLoader(keyFiles []string, decrypters []keyDecrypter) (*multiKeyLoader, error) {
@@ -38,7 +37,7 @@ func newMultiKeyLoader(keyFiles []string, decrypters []keyDecrypter) (*multiKeyL
 	return &multiKeyLoader{
 		keyFiles:      keyFiles,
 		decrypters:    dm,
-		loadedSecrets: make([]*bls_core.SecretKey, 0, len(keyFiles)),
+		loadedSecrets: make([]*bls_interface.BlsSecretKey, 0, len(keyFiles)),
 	}, nil
 }
 
@@ -58,7 +57,7 @@ type blsDirLoader struct {
 	keyDir     string
 	decrypters map[string]keyDecrypter
 
-	loadedSecrets []*bls_core.SecretKey
+	loadedSecrets []*bls_interface.BlsSecretKey
 }
 
 func newBlsDirLoader(keyDir string, decrypters []keyDecrypter) (*blsDirLoader, error) {

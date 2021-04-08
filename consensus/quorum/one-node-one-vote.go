@@ -4,13 +4,11 @@ import (
 	"encoding/json"
 	"math/big"
 
-	bls_core "github.com/harmony-one/bls/ffi/go/bls"
-	"github.com/harmony-one/harmony/crypto/bls"
+	"github.com/harmony-one/harmony/crypto/bls_interface"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/harmony-one/harmony/consensus/votepower"
 
-	bls_cosi "github.com/harmony-one/harmony/crypto/bls"
 	"github.com/harmony-one/harmony/internal/utils"
 	"github.com/harmony-one/harmony/numeric"
 	"github.com/harmony-one/harmony/shard"
@@ -29,10 +27,10 @@ func (v *uniformVoteWeight) Policy() Policy {
 
 // AddNewVote ..
 func (v *uniformVoteWeight) AddNewVote(
-	p Phase, pubKeys []*bls_cosi.PublicKeyWrapper,
-	sig *bls_core.Sign, headerHash common.Hash,
+	p Phase, pubKeys []*bls_interface.PublicKeyWrapper,
+	sig *bls_interface.BlsSign, headerHash common.Hash,
 	height, viewID uint64) (*votepower.Ballot, error) {
-	pubKeysBytes := make([]bls.SerializedPublicKey, len(pubKeys))
+	pubKeysBytes := make([]bls_interface.SerializedPublicKey, len(pubKeys))
 	for i, pubKey := range pubKeys {
 		pubKeysBytes[i] = pubKey.Bytes
 	}
@@ -51,7 +49,7 @@ func (v *uniformVoteWeight) IsQuorumAchieved(p Phase) bool {
 }
 
 // IsQuorumAchivedByMask ..
-func (v *uniformVoteWeight) IsQuorumAchievedByMask(mask *bls_cosi.Mask) bool {
+func (v *uniformVoteWeight) IsQuorumAchievedByMask(mask *bls_interface.Mask) bool {
 	if mask == nil {
 		return false
 	}

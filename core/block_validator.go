@@ -31,7 +31,7 @@ import (
 	consensus_engine "github.com/harmony-one/harmony/consensus/engine"
 	"github.com/harmony-one/harmony/core/state"
 	"github.com/harmony-one/harmony/core/types"
-	"github.com/harmony-one/harmony/crypto/bls"
+	"github.com/harmony-one/harmony/crypto/bls_interface"
 	"github.com/harmony-one/harmony/internal/params"
 )
 
@@ -247,7 +247,7 @@ func (v *BlockValidator) ValidateCXReceiptsProof(cxp *types.CXReceiptsProof) err
 	}
 
 	// (4) verify blockHeader with seal
-	var commitSig bls.SerializedSignature
+	var commitSig bls_interface.SerializedSignature
 	copy(commitSig[:], cxp.CommitSig)
 	return v.engine.VerifyHeaderSignature(v.bc, cxp.Header, commitSig, cxp.CommitBitmap)
 }

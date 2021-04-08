@@ -21,7 +21,7 @@ import (
 
 	ethCommon "github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/log"
-	"github.com/harmony-one/bls/ffi/go/bls"
+	"github.com/harmony-one/harmony/crypto/bls_interface"
 	"github.com/harmony-one/harmony/api/service"
 	"github.com/harmony-one/harmony/api/service/legacysync"
 	"github.com/harmony-one/harmony/api/service/prometheus"
@@ -529,7 +529,7 @@ func createGlobalConfig(hc harmonyConfig) (*nodeconfig.ConfigType, error) {
 		setupConsensusKeys(hc, nodeConfig)
 	} else {
 		// set dummy bls key for consensus object
-		nodeConfig.ConsensusPriKey = multibls.GetPrivateKeys(&bls.SecretKey{})
+		nodeConfig.ConsensusPriKey = multibls.GetPrivateKeys(&bls_interface.BlsSecretKey{})
 	}
 
 	// Set network type

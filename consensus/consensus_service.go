@@ -6,17 +6,15 @@ import (
 	"time"
 
 	"github.com/harmony-one/harmony/core/types"
-	"github.com/harmony-one/harmony/crypto/bls"
+	"github.com/harmony-one/harmony/crypto/bls_interface"
 
 	"github.com/ethereum/go-ethereum/common"
 	protobuf "github.com/golang/protobuf/proto"
-	bls_core "github.com/harmony-one/bls/ffi/go/bls"
 	msg_pb "github.com/harmony-one/harmony/api/proto/message"
 	"github.com/harmony-one/harmony/block"
 	consensus_engine "github.com/harmony-one/harmony/consensus/engine"
 	"github.com/harmony-one/harmony/consensus/quorum"
 	"github.com/harmony-one/harmony/consensus/signature"
-	bls_cosi "github.com/harmony-one/harmony/crypto/bls"
 	"github.com/harmony-one/harmony/crypto/hash"
 	"github.com/harmony-one/harmony/internal/chain"
 	"github.com/harmony-one/harmony/internal/utils"
@@ -61,7 +59,7 @@ var (
 
 // Signs the consensus message and returns the marshaled message.
 func (consensus *Consensus) signAndMarshalConsensusMessage(message *msg_pb.Message,
-	priKey *bls_core.SecretKey) ([]byte, error) {
+	priKey *bls_interface.BlsSecretKey) ([]byte, error) {
 	if err := consensus.signConsensusMessage(message, priKey); err != nil {
 		return empty, err
 	}
@@ -74,7 +72,7 @@ func (consensus *Consensus) signAndMarshalConsensusMessage(message *msg_pb.Messa
 
 // UpdatePublicKeys updates the PublicKeys for
 // quorum on current subcommittee, protected by a mutex
-func (consensus *Consensus) UpdatePublicKeys(pubKeys []bls_cosi.PublicKeyWrapper) int64 {
+func (consensus *Consensus) UpdatePublicKeys(pubKeys []bls_interface.PublicKeyWrapper) int64 {
 	// TODO: use mutex for updating public keys pointer. No need to lock on all these logic.
 	consensus.pubKeyLock.Lock()
 	consensus.Decider.UpdateParticipants(pubKeys)
@@ -114,7 +112,7 @@ func NewFaker() *Consensus {
 }
 
 // Sign on the hash of the message
-func (consensus *Consensus) signMessage(message []byte, priKey *bls_core.SecretKey) []byte {
+func (consensus *Consensus) signMessage(message []byte, priKey *bls_interface.BlsSecretKey) []byte {
 	hash := hash.Keccak256(message)
 	signature := priKey.SignHash(hash[:])
 	return signature.Serialize()
@@ -122,7 +120,7 @@ func (consensus *Consensus) signMessage(message []byte, priKey *bls_core.SecretK
 
 // Sign on the consensus message signature field.
 func (consensus *Consensus) signConsensusMessage(message *msg_pb.Message,
-	priKey *bls_core.SecretKey) error {
+	priKey *bls_interface.BlsSecretKey) error {
 	message.Signature = nil
 	marshaledMessage, err := protobuf.Marshal(message)
 	if err != nil {
@@ -140,9 +138,9 @@ func (consensus *Consensus) UpdateBitmaps() {
 		Str("MessageType", consensus.phase.String()).
 		Msg("[UpdateBitmaps] Updating consensus bitmaps")
 	members := consensus.Decider.Participants()
-	prepareBitmap, _ := bls_cosi.NewMask(members, nil)
-	commitBitmap, _ := bls_cosi.NewMask(members, nil)
-	multiSigBitmap, _ := bls_cosi.NewMask(members, nil)
+	prepareBitmap, _ := bls_interface.NewMask(members, nil)
+	commitBitmap, _ := bls_interface.NewMask(members, nil)
+	multiSigBitmap, _ := bls_interface.NewMask(members, nil)
 	consensus.prepareBitmap = prepareBitmap
 	consensus.commitBitmap = commitBitmap
 	consensus.multiSigMutex.Lock()
@@ -168,7 +166,7 @@ func (consensus *Consensus) ResetState() {
 }
 
 // IsValidatorInCommittee returns whether the given validator BLS address is part of my committee
-func (consensus *Consensus) IsValidatorInCommittee(pubKey bls.SerializedPublicKey) bool {
+func (consensus *Consensus) IsValidatorInCommittee(pubKey bls_interface.SerializedPublicKey) bool {
 	return consensus.Decider.IndexOf(pubKey) != -1
 }
 
@@ -229,8 +227,8 @@ func (consensus *Consensus) SetBlockNum(blockNum uint64) {
 // ReadSignatureBitmapPayload read the payload for signature and bitmap; offset is the beginning position of reading
 func (consensus *Consensus) ReadSignatureBitmapPayload(
 	recvPayload []byte, offset int,
-) (*bls_core.Sign, *bls_cosi.Mask, error) {
-	if offset+bls.BLSSignatureSizeInBytes > len(recvPayload) {
+) (*bls_interface.BlsSign, *bls_interface.Mask, error) {
+	if offset+bls_interface.BLSSignatureSizeInBytes > len(recvPayload) {
 		return nil, nil, errors.New("payload not have enough length")
 	}
 	sigAndBitmapPayload := recvPayload[offset:]
@@ -245,7 +243,7 @@ func (consensus *Consensus) ReadSignatureBitmapPayload(
 // retrieve corresponding blsPublicKey from Coinbase Address
 func (consensus *Consensus) getLeaderPubKeyFromCoinbase(
 	header *block.Header,
-) (*bls.PublicKeyWrapper, error) {
+) (*bls_interface.PublicKeyWrapper, error) {
 	shardState, err := consensus.Blockchain.ReadShardState(header.Epoch())
 	if err != nil {
 		return nil, errors.Wrapf(err, "cannot read shard state %v %s",
@@ -259,23 +257,23 @@ func (consensus *Consensus) getLeaderPubKeyFromCoinbase(
 		return nil, err
 	}
 
-	committerKey := new(bls_core.PublicKey)
+	committerKey := new(bls_interface.BlsPublicKey)
 	isStaking := consensus.Blockchain.Config().IsStaking(header.Epoch())
 	for _, member := range committee.Slots {
 		if isStaking {
 			// After staking the coinbase address will be the address of bls public key
 			if utils.GetAddressFromBLSPubKeyBytes(member.BLSPublicKey[:]) == header.Coinbase() {
-				if committerKey, err = bls.BytesToBLSPublicKey(member.BLSPublicKey[:]); err != nil {
+				if committerKey, err = bls_interface.BytesToBLSPublicKey(member.BLSPublicKey[:]); err != nil {
 					return nil, err
 				}
-				return &bls.PublicKeyWrapper{Object: committerKey, Bytes: member.BLSPublicKey}, nil
+				return &bls_interface.PublicKeyWrapper{Object: committerKey, Bytes: member.BLSPublicKey}, nil
 			}
 		} else {
 			if member.EcdsaAddress == header.Coinbase() {
-				if committerKey, err = bls.BytesToBLSPublicKey(member.BLSPublicKey[:]); err != nil {
+				if committerKey, err = bls_interface.BytesToBLSPublicKey(member.BLSPublicKey[:]); err != nil {
 					return nil, err
 				}
-				return &bls.PublicKeyWrapper{Object: committerKey, Bytes: member.BLSPublicKey}, nil
+				return &bls_interface.PublicKeyWrapper{Object: committerKey, Bytes: member.BLSPublicKey}, nil
 			}
 		}
 	}
@@ -577,11 +575,14 @@ func (consensus *Consensus) selfCommit(payload []byte) error {
 				Msg("[selfCommit] New Leader commit bitmap set failed")
 			continue
 		}
-
+		// TODO: revamp
+		new_hash := key.Pri.SignHash(commitPayload)
+		signInterface := &bls_interface.BlsSign{}
+		signInterface.Deserialize(new_hash.Serialize())
 		if _, err := consensus.Decider.AddNewVote(
 			quorum.Commit,
-			[]*bls_cosi.PublicKeyWrapper{key.Pub},
-			key.Pri.SignHash(commitPayload),
+			[]*bls_interface.PublicKeyWrapper{key.Pub},
+			signInterface,
 			common.BytesToHash(consensus.blockHash[:]),
 			block.NumberU64(),
 			block.Header().ViewID().Uint64(),
@@ -601,7 +602,7 @@ func (consensus *Consensus) NumSignaturesIncludedInBlock(block *types.Block) uin
 	count := uint32(0)
 	members := consensus.Decider.Participants()
 	// TODO(audit): do not reconstruct the Mask
-	mask, err := bls.NewMask(members, nil)
+	mask, err := bls_interface.NewMask(members, nil)
 	if err != nil {
 		return count
 	}

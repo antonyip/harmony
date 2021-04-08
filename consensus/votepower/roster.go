@@ -13,7 +13,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	bls_core "github.com/harmony-one/bls/ffi/go/bls"
-	"github.com/harmony-one/harmony/crypto/bls"
+	"github.com/harmony-one/harmony/crypto/bls_interface"
 	common2 "github.com/harmony-one/harmony/internal/common"
 	"github.com/harmony-one/harmony/internal/utils"
 	"github.com/harmony-one/harmony/numeric"
@@ -27,7 +27,7 @@ var (
 
 // Ballot is a vote cast by a validator
 type Ballot struct {
-	SignerPubKeys   []bls.SerializedPublicKey `json:"bls-public-keys"`
+	SignerPubKeys   []bls_interface.SerializedPublicKey `json:"bls-public-keys"`
 	BlockHeaderHash common.Hash               `json:"block-header-hash"`
 	Signature       []byte                    `json:"bls-signature"`
 	Height          uint64                    `json:"block-height"`
@@ -54,7 +54,7 @@ func (b Ballot) MarshalJSON() ([]byte, error) {
 // Round is a round of voting in any FBFT phase
 type Round struct {
 	AggregatedVote *bls_core.Sign
-	BallotBox      map[bls.SerializedPublicKey]*Ballot
+	BallotBox      map[bls_interface.SerializedPublicKey]*Ballot
 }
 
 func (b Ballot) String() string {
@@ -66,14 +66,14 @@ func (b Ballot) String() string {
 func NewRound() *Round {
 	return &Round{
 		AggregatedVote: &bls_core.Sign{},
-		BallotBox:      map[bls.SerializedPublicKey]*Ballot{},
+		BallotBox:      map[bls_interface.SerializedPublicKey]*Ballot{},
 	}
 }
 
 // PureStakedVote ..
 type PureStakedVote struct {
 	EarningAccount common.Address          `json:"earning-account"`
-	Identity       bls.SerializedPublicKey `json:"bls-public-key"`
+	Identity       bls_interface.SerializedPublicKey `json:"bls-public-key"`
 	GroupPercent   numeric.Dec             `json:"group-percent"`
 	EffectiveStake numeric.Dec             `json:"effective-stake"`
 	RawStake       numeric.Dec             `json:"raw-stake"`
@@ -101,7 +101,7 @@ type topLevelRegistry struct {
 
 // Roster ..
 type Roster struct {
-	Voters map[bls.SerializedPublicKey]*AccommodateHarmonyVote
+	Voters map[bls_interface.SerializedPublicKey]*AccommodateHarmonyVote
 	topLevelRegistry
 	ShardID uint32
 }
@@ -250,7 +250,7 @@ func Compute(subComm *shard.Committee, epoch *big.Int) (*Roster, error) {
 
 // NewRoster ..
 func NewRoster(shardID uint32) *Roster {
-	m := map[bls.SerializedPublicKey]*AccommodateHarmonyVote{}
+	m := map[bls_interface.SerializedPublicKey]*AccommodateHarmonyVote{}
 	return &Roster{
 		Voters: m,
 		topLevelRegistry: topLevelRegistry{
@@ -263,7 +263,7 @@ func NewRoster(shardID uint32) *Roster {
 }
 
 // VotePowerByMask return the vote power with the given BLS mask. The result is a number between 0 and 1.
-func (r *Roster) VotePowerByMask(mask *bls.Mask) numeric.Dec {
+func (r *Roster) VotePowerByMask(mask *bls_interface.Mask) numeric.Dec {
 	res := numeric.ZeroDec()
 
 	for key, index := range mask.PublicsIndex {

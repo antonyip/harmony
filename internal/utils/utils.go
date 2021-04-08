@@ -16,7 +16,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	bls_core "github.com/harmony-one/bls/ffi/go/bls"
-	"github.com/harmony-one/harmony/crypto/bls"
+	"github.com/harmony-one/harmony/crypto/bls_interface"
 	p2p_crypto "github.com/libp2p/go-libp2p-core/crypto"
 	"github.com/pkg/errors"
 )
@@ -71,7 +71,7 @@ func GetUniqueIDFromIPPort(ip, port string) uint32 {
 
 // GetAddressFromBLSPubKeyBytes return the address object from bls pub key.
 func GetAddressFromBLSPubKeyBytes(pubKeyBytes []byte) common.Address {
-	pubKey, err := bls.BytesToBLSPublicKey(pubKeyBytes[:])
+	pubKey, err := bls_interface.BytesToBLSPublicKey(pubKeyBytes[:])
 	addr := common.Address{}
 	if err == nil {
 		addrBytes := pubKey.GetAddress()

@@ -7,7 +7,6 @@ import (
 	"sync/atomic"
 	"time"
 
-	bls2 "github.com/harmony-one/bls/ffi/go/bls"
 	"github.com/harmony-one/harmony/consensus/signature"
 
 	nodeconfig "github.com/harmony-one/harmony/internal/configs/node"
@@ -19,7 +18,7 @@ import (
 	"github.com/harmony-one/harmony/block"
 	"github.com/harmony-one/harmony/consensus/quorum"
 	"github.com/harmony-one/harmony/core/types"
-	"github.com/harmony-one/harmony/crypto/bls"
+	"github.com/harmony-one/harmony/crypto/bls_interface"
 	vrf_bls "github.com/harmony-one/harmony/crypto/vrf/bls"
 	"github.com/harmony-one/harmony/p2p"
 	"github.com/harmony-one/harmony/shard"
@@ -49,7 +48,7 @@ func (consensus *Consensus) IsViewChangingMode() bool {
 }
 
 // HandleMessageUpdate will update the consensus state according to received message
-func (consensus *Consensus) HandleMessageUpdate(ctx context.Context, msg *msg_pb.Message, senderKey *bls.SerializedPublicKey) error {
+func (consensus *Consensus) HandleMessageUpdate(ctx context.Context, msg *msg_pb.Message, senderKey *bls_interface.SerializedPublicKey) error {
 	// when node is in ViewChanging mode, it still accepts normal messages into FBFTLog
 	// in order to avoid possible trap forever but drop PREPARE and COMMIT
 	// which are message types specifically for a node acting as leader
@@ -136,7 +135,7 @@ func (consensus *Consensus) finalCommit() {
 		return
 	}
 	// Construct committed message
-	network, err := consensus.construct(msg_pb.MessageType_COMMITTED, nil, []*bls.PrivateKeyWrapper{leaderPriKey})
+	network, err := consensus.construct(msg_pb.MessageType_COMMITTED, nil, []*bls_interface.PrivateKeyWrapper{leaderPriKey})
 	if err != nil {
 		consensus.getLogger().Warn().Err(err).
 			Msg("[finalCommit] Unable to construct Committed message")
@@ -261,7 +260,7 @@ func (consensus *Consensus) BlockCommitSigs(blockNum uint64) ([]byte, error) {
 	}
 	lastCommits, err := consensus.Blockchain.ReadCommitSig(blockNum)
 	if err != nil ||
-		len(lastCommits) < bls.BLSSignatureSizeInBytes {
+		len(lastCommits) < bls_interface.BLSSignatureSizeInBytes {
 		msgs := consensus.FBFTLog.GetMessagesByTypeSeq(
 			msg_pb.MessageType_COMMITTED, blockNum,
 		)
@@ -605,7 +604,7 @@ func (consensus *Consensus) preCommitAndPropose(blk *types.Block) error {
 	}
 
 	// Construct committed message
-	network, err := consensus.construct(msg_pb.MessageType_COMMITTED, nil, []*bls.PrivateKeyWrapper{leaderPriKey})
+	network, err := consensus.construct(msg_pb.MessageType_COMMITTED, nil, []*bls_interface.PrivateKeyWrapper{leaderPriKey})
 	if err != nil {
 		consensus.getLogger().Warn().Err(err).
 			Msg("[preCommitAndPropose] Unable to construct Committed message")
@@ -658,13 +657,13 @@ func (consensus *Consensus) preCommitAndPropose(blk *types.Block) error {
 }
 
 func (consensus *Consensus) verifyLastCommitSig(lastCommitSig []byte, blk *types.Block) error {
-	if len(lastCommitSig) < bls.BLSSignatureSizeInBytes {
+	if len(lastCommitSig) < bls_interface.BLSSignatureSizeInBytes {
 		return errors.New("lastCommitSig not have enough length")
 	}
 
-	aggSigBytes := lastCommitSig[0:bls.BLSSignatureSizeInBytes]
+	aggSigBytes := lastCommitSig[0:bls_interface.BLSSignatureSizeInBytes]
 
-	aggSig := bls2.Sign{}
+	aggSig := bls_interface.BlsSign{}
 	err := aggSig.Deserialize(aggSigBytes)
 
 	if err != nil {

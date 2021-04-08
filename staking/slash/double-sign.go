@@ -6,12 +6,11 @@ import (
 	"encoding/json"
 	"math/big"
 
-	"github.com/harmony-one/harmony/crypto/bls"
+	"github.com/harmony-one/harmony/crypto/bls_interface"
 	"github.com/harmony-one/harmony/shard"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/rlp"
-	bls_core "github.com/harmony-one/bls/ffi/go/bls"
 	consensus_sig "github.com/harmony-one/harmony/consensus/signature"
 	"github.com/harmony-one/harmony/consensus/votepower"
 	"github.com/harmony-one/harmony/core/state"
@@ -74,7 +73,7 @@ type ConflictingVotes struct {
 
 // Vote is the vote of the double signer
 type Vote struct {
-	SignerPubKeys   []bls.SerializedPublicKey `json:"bls-public-keys"`
+	SignerPubKeys   []bls_interface.SerializedPublicKey `json:"bls-public-keys"`
 	BlockHeaderHash common.Hash               `json:"block-header-hash"`
 	Signature       []byte                    `json:"bls-signature"`
 }
@@ -173,7 +172,7 @@ func Verify(
 		candidate.Evidence.SecondVote
 
 	for _, pubKey := range append(first.SignerPubKeys, second.SignerPubKeys...) {
-		if len(pubKey) != bls.PublicKeySizeInBytes {
+		if len(pubKey) != bls_interface.PublicKeySizeInBytes {
 			return errors.Wrapf(
 				errSignerKeyNotRightSize, "double-signed key %x", pubKey,
 			)
@@ -184,7 +183,7 @@ func Verify(
 		return errors.Wrapf(errSlashBlockNoConflict, "first %v+ second %v+", first, second)
 	}
 
-	doubleSignKeys := []bls.SerializedPublicKey{}
+	doubleSignKeys := []bls_interface.SerializedPublicKey{}
 	for _, pubKey1 := range first.SignerPubKeys {
 		for _, pubKey2 := range second.SignerPubKeys {
 			if shard.CompareBLSPublicKey(pubKey1, pubKey2) == 0 {
@@ -262,15 +261,15 @@ func Verify(
 		candidate.Evidence.SecondVote,
 	} {
 		// now the only real assurance, cryptography
-		signature := &bls_core.Sign{}
-		publicKey := &bls_core.PublicKey{}
+		signature := &bls_interface.BlsSign{}
+		publicKey := &bls_interface.BlsPublicKey{}
 
 		if err := signature.Deserialize(ballot.Signature); err != nil {
 			return err
 		}
 
 		for _, pubKey := range ballot.SignerPubKeys {
-			publicKeyObj, err := bls.BytesToBLSPublicKey(pubKey[:])
+			publicKeyObj, err := bls_interface.BytesToBLSPublicKey(pubKey[:])
 
 			if err != nil {
 				return err
@@ -532,7 +531,7 @@ func Rate(votingPower *votepower.Roster, records Records) numeric.Dec {
 	rate := numeric.ZeroDec()
 
 	for i := range records {
-		doubleSignKeys := []bls.SerializedPublicKey{}
+		doubleSignKeys := []bls_interface.SerializedPublicKey{}
 		for _, pubKey1 := range records[i].Evidence.FirstVote.SignerPubKeys {
 			for _, pubKey2 := range records[i].Evidence.SecondVote.SignerPubKeys {
 				if shard.CompareBLSPublicKey(pubKey1, pubKey2) == 0 {

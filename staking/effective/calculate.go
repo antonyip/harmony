@@ -6,7 +6,7 @@ import (
 	"math/big"
 	"sort"
 
-	"github.com/harmony-one/harmony/crypto/bls"
+	"github.com/harmony-one/harmony/crypto/bls_interface"
 
 	"github.com/ethereum/go-ethereum/common"
 	common2 "github.com/harmony-one/harmony/internal/common"
@@ -30,7 +30,7 @@ func effectiveStake(median, actual numeric.Dec) numeric.Dec {
 // SlotPurchase ..
 type SlotPurchase struct {
 	Addr      common.Address
-	Key       bls.SerializedPublicKey
+	Key       bls_interface.SerializedPublicKey
 	RawStake  numeric.Dec
 	EPoSStake numeric.Dec
 }
@@ -53,7 +53,7 @@ func (p SlotPurchase) MarshalJSON() ([]byte, error) {
 // SlotOrder ..
 type SlotOrder struct {
 	Stake       *big.Int                  `json:"stake"`
-	SpreadAmong []bls.SerializedPublicKey `json:"keys-at-auction"`
+	SpreadAmong []bls_interface.SerializedPublicKey `json:"keys-at-auction"`
 	Percentage  numeric.Dec               `json:"percentage-of-total-auction-stake"`
 }
 

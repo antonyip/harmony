@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"math/big"
 
-	"github.com/harmony-one/harmony/crypto/bls"
+	"github.com/harmony-one/harmony/crypto/bls_interface"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/harmony-one/harmony/numeric"
@@ -60,8 +60,8 @@ type CreateValidator struct {
 	CommissionRates    `json:"commission"`
 	MinSelfDelegation  *big.Int                  `json:"min-self-delegation"`
 	MaxTotalDelegation *big.Int                  `json:"max-total-delegation"`
-	SlotPubKeys        []bls.SerializedPublicKey `json:"slot-pub-keys"`
-	SlotKeySigs        []bls.SerializedSignature `json:"slot-key-sigs"`
+	SlotPubKeys        []bls_interface.SerializedPublicKey `json:"slot-pub-keys"`
+	SlotKeySigs        []bls_interface.SerializedSignature `json:"slot-key-sigs"`
 	Amount             *big.Int                  `json:"amount"`
 }
 
@@ -79,11 +79,11 @@ func (v CreateValidator) Copy() StakeMsg {
 	}
 
 	if v.SlotPubKeys != nil {
-		cp.SlotPubKeys = make([]bls.SerializedPublicKey, len(v.SlotPubKeys))
+		cp.SlotPubKeys = make([]bls_interface.SerializedPublicKey, len(v.SlotPubKeys))
 		copy(cp.SlotPubKeys, v.SlotPubKeys)
 	}
 	if v.SlotKeySigs != nil {
-		cp.SlotKeySigs = make([]bls.SerializedSignature, len(v.SlotKeySigs))
+		cp.SlotKeySigs = make([]bls_interface.SerializedSignature, len(v.SlotKeySigs))
 		copy(cp.SlotKeySigs, v.SlotKeySigs)
 	}
 	if v.MinSelfDelegation != nil {
@@ -105,9 +105,9 @@ type EditValidator struct {
 	CommissionRate     *numeric.Dec             `json:"commission-rate" rlp:"nil"`
 	MinSelfDelegation  *big.Int                 `json:"min-self-delegation" rlp:"nil"`
 	MaxTotalDelegation *big.Int                 `json:"max-total-delegation" rlp:"nil"`
-	SlotKeyToRemove    *bls.SerializedPublicKey `json:"slot-key-to_remove" rlp:"nil"`
-	SlotKeyToAdd       *bls.SerializedPublicKey `json:"slot-key-to_add" rlp:"nil"`
-	SlotKeyToAddSig    *bls.SerializedSignature `json:"slot-key-to-add-sig" rlp:"nil"`
+	SlotKeyToRemove    *bls_interface.SerializedPublicKey `json:"slot-key-to_remove" rlp:"nil"`
+	SlotKeyToAdd       *bls_interface.SerializedPublicKey `json:"slot-key-to_add" rlp:"nil"`
+	SlotKeyToAddSig    *bls_interface.SerializedSignature `json:"slot-key-to-add-sig" rlp:"nil"`
 	EPOSStatus         effective.Eligibility    `json:"epos-eligibility-status"`
 }
 

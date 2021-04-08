@@ -12,7 +12,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	protobuf "github.com/golang/protobuf/proto"
 	"github.com/harmony-one/abool"
-	bls_core "github.com/harmony-one/bls/ffi/go/bls"
 	lru "github.com/hashicorp/golang-lru"
 	libp2p_peer "github.com/libp2p/go-libp2p-core/peer"
 	libp2p_pubsub "github.com/libp2p/go-libp2p-pubsub"
@@ -31,7 +30,7 @@ import (
 	"github.com/harmony-one/harmony/core"
 	"github.com/harmony-one/harmony/core/rawdb"
 	"github.com/harmony-one/harmony/core/types"
-	"github.com/harmony-one/harmony/crypto/bls"
+	"github.com/harmony-one/harmony/crypto/bls_interface"
 	"github.com/harmony-one/harmony/internal/chain"
 	common2 "github.com/harmony-one/harmony/internal/common"
 	nodeconfig "github.com/harmony-one/harmony/internal/configs/node"
@@ -436,7 +435,7 @@ func (node *Node) validateNodeMessage(ctx context.Context, payload []byte) (
 // verify message signature
 func (node *Node) validateShardBoundMessage(
 	ctx context.Context, payload []byte,
-) (*msg_pb.Message, *bls.SerializedPublicKey, bool, error) {
+) (*msg_pb.Message, *bls_interface.SerializedPublicKey, bool, error) {
 	var (
 		m msg_pb.Message
 	)
@@ -522,9 +521,9 @@ func (node *Node) validateShardBoundMessage(
 		}
 	}
 
-	serializedKey := bls.SerializedPublicKey{}
+	serializedKey := bls_interface.SerializedPublicKey{}
 	if len(senderKey) > 0 {
-		if len(senderKey) != bls.PublicKeySizeInBytes {
+		if len(senderKey) != bls_interface.PublicKeySizeInBytes {
 			nodeConsensusMessageCounterVec.With(prometheus.Labels{"type": "invalid_key_size"}).Inc()
 			return nil, nil, true, errors.WithStack(errNotRightKeySize)
 		}
@@ -608,7 +607,7 @@ func (node *Node) StartPubSub() error {
 	type p2pHandlerConsensus func(
 		ctx context.Context,
 		msg *msg_pb.Message,
-		key *bls.SerializedPublicKey,
+		key *bls_interface.SerializedPublicKey,
 	) error
 
 	// other p2p message handler function
@@ -625,7 +624,7 @@ func (node *Node) StartPubSub() error {
 		handleCArg     *msg_pb.Message
 		handleE        p2pHandlerElse
 		handleEArg     []byte
-		senderPubKey   *bls.SerializedPublicKey
+		senderPubKey   *bls_interface.SerializedPublicKey
 		actionType     proto_node.MessageType
 	}
 
@@ -1231,7 +1230,7 @@ func (node *Node) populateSelfAddresses(epoch *big.Int) {
 
 	for _, blskey := range node.Consensus.GetPublicKeys() {
 		blsStr := blskey.Bytes.Hex()
-		shardkey := bls.FromLibBLSPublicKeyUnsafe(blskey.Object)
+		shardkey := bls_interface.FromLibBLSPublicKeyUnsafe(blskey.Object)
 		if shardkey == nil {
 			utils.Logger().Error().
 				Int64("epoch", epoch.Int64()).
@@ -1260,7 +1259,7 @@ func (node *Node) populateSelfAddresses(epoch *big.Int) {
 }
 
 // GetAddressForBLSKey retrieves the ECDSA address associated with bls key for epoch
-func (node *Node) GetAddressForBLSKey(blskey *bls_core.PublicKey, epoch *big.Int) common.Address {
+func (node *Node) GetAddressForBLSKey(blskey *bls_interface.BlsPublicKey, epoch *big.Int) common.Address {
 	// populate if first time setting or new epoch
 	node.keysToAddrsMutex.Lock()
 	defer node.keysToAddrsMutex.Unlock()

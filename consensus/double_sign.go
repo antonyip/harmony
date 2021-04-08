@@ -7,7 +7,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	bls_core "github.com/harmony-one/bls/ffi/go/bls"
 	"github.com/harmony-one/harmony/consensus/quorum"
-	"github.com/harmony-one/harmony/crypto/bls"
+	"github.com/harmony-one/harmony/crypto/bls_interface"
 	"github.com/harmony-one/harmony/staking/slash"
 )
 
@@ -79,7 +79,7 @@ func (consensus *Consensus) checkDoubleSign(recvMsg *FBFTMessage) bool {
 								}
 
 								go func(reporter common.Address) {
-									secondKeys := make([]bls.SerializedPublicKey, len(recvMsg.SenderPubkeys))
+									secondKeys := make([]bls_interface.SerializedPublicKey, len(recvMsg.SenderPubkeys))
 									for i, pubKey := range recvMsg.SenderPubkeys {
 										secondKeys[i] = pubKey.Bytes
 									}

@@ -16,8 +16,7 @@ import (
 	"github.com/harmony-one/harmony/consensus/signature"
 	"github.com/harmony-one/harmony/core/state"
 	"github.com/harmony-one/harmony/core/types"
-	"github.com/harmony-one/harmony/crypto/bls"
-	bls_cosi "github.com/harmony-one/harmony/crypto/bls"
+	"github.com/harmony-one/harmony/crypto/bls_interface"
 	"github.com/harmony-one/harmony/internal/utils"
 	"github.com/harmony-one/harmony/shard"
 	"github.com/harmony-one/harmony/shard/committee"
@@ -402,7 +401,7 @@ func applySlashes(
 // is used for verifying "incoming" block header against commit signature and bitmap sent from the other chain cross-shard via libp2p.
 // i.e. this header verification api is more flexible since the caller specifies which commit signature and bitmap to use
 // for verifying the block header, which is necessary for cross-shard block header verification. Example of such is cross-shard transaction.
-func (e *engineImpl) VerifyHeaderSignature(chain engine.ChainReader, header *block.Header, commitSig bls_cosi.SerializedSignature, commitBitmap []byte) error {
+func (e *engineImpl) VerifyHeaderSignature(chain engine.ChainReader, header *block.Header, commitSig bls_interface.SerializedSignature, commitBitmap []byte) error {
 	if chain.CurrentHeader().Number().Uint64() <= uint64(1) {
 		return nil
 	}
@@ -488,11 +487,11 @@ const bitmapKeyBytes = 64
 // verifiedSigKey is the key for caching header verification results
 type verifiedSigKey struct {
 	blockHash common.Hash
-	signature bls_cosi.SerializedSignature
+	signature bls_interface.SerializedSignature
 	bitmap    [bitmapKeyBytes]byte
 }
 
-func newVerifiedSigKey(blockHash common.Hash, sig bls_cosi.SerializedSignature, bitmap []byte) verifiedSigKey {
+func newVerifiedSigKey(blockHash common.Hash, sig bls_interface.SerializedSignature, bitmap []byte) verifiedSigKey {
 	var keyBM [bitmapKeyBytes]byte
 	copy(keyBM[:], bitmap)
 
@@ -537,7 +536,7 @@ func (args payloadArgs) constructPayload(chain engine.ChainReader) []byte {
 }
 
 type sigArgs struct {
-	sig    bls_cosi.SerializedSignature
+	sig    bls_interface.SerializedSignature
 	bitmap []byte
 }
 
@@ -552,7 +551,7 @@ type (
 	// The value is fixed for each epoch and is cached in engineImpl.
 	epochCtx struct {
 		qrVerifier quorum.Verifier
-		pubKeys    []bls.PublicKeyWrapper
+		pubKeys    []bls_interface.PublicKeyWrapper
 	}
 )
 

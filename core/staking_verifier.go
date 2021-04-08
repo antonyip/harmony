@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"math/big"
 
-	"github.com/harmony-one/harmony/crypto/bls"
+	"github.com/harmony-one/harmony/crypto/bls_interface"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/harmony-one/harmony/common/denominations"
@@ -25,7 +25,7 @@ var (
 
 func checkDuplicateFields(
 	bc ChainContext, state vm.StateDB,
-	validator common.Address, identity string, blsKeys []bls.SerializedPublicKey,
+	validator common.Address, identity string, blsKeys []bls_interface.SerializedPublicKey,
 ) error {
 	addrs, err := bc.ReadValidatorList()
 	if err != nil {
@@ -35,7 +35,7 @@ func checkDuplicateFields(
 	checkIdentity := identity != ""
 	checkBlsKeys := len(blsKeys) != 0
 
-	blsKeyMap := map[bls.SerializedPublicKey]struct{}{}
+	blsKeyMap := map[bls_interface.SerializedPublicKey]struct{}{}
 	for _, key := range blsKeys {
 		blsKeyMap[key] = struct{}{}
 	}
@@ -141,7 +141,7 @@ func VerifyAndEditValidatorFromMsg(
 	if !stateDB.IsValidator(msg.ValidatorAddress) {
 		return nil, errValidatorNotExist
 	}
-	newBlsKeys := []bls.SerializedPublicKey{}
+	newBlsKeys := []bls_interface.SerializedPublicKey{}
 	if msg.SlotKeyToAdd != nil {
 		newBlsKeys = append(newBlsKeys, *msg.SlotKeyToAdd)
 	}

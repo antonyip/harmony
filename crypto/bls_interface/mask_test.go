@@ -3,8 +3,6 @@ package bls_interface
 import (
 	"strings"
 	"testing"
-
-	"github.com/harmony-one/bls/ffi/go/bls"
 )
 
 // Test the basic functionality of a BLS multi-sig mask.
@@ -142,10 +140,10 @@ func TestCompletePolicy(test *testing.T) {
 }
 
 func TestAggregatedSignature(test *testing.T) {
-	var sec bls_interface.BlsSecretKey
+	var sec BlsSecretKey
 	sec.SetByCSPRNG()
 
-	signs := []*bls_interface.BlsSign{sec.Sign("message1"), sec.Sign("message2")}
+	signs := []*BlsSign{sec.Sign("message1"), sec.Sign("message2")}
 
 	multiSignature := AggregateSig(signs)
 

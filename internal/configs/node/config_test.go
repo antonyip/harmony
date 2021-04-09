@@ -85,7 +85,7 @@ func TestValidateConsensusKeysForSameShard(t *testing.T) {
 	}
 	dummyKey = bls_interface.SerializedPublicKey{}
 	dummyKey.FromLibBLSPublicKey(pubKey3)
-	keys = append(keys, bls.PublicKeyWrapper{Object: pubKey3, Bytes: dummyKey})
+	keys = append(keys, bls_interface.PublicKeyWrapper{Object: pubKey3, Bytes: dummyKey})
 	if err := GetDefaultConfig().ValidateConsensusKeysForSameShard(keys, 0); err == nil {
 		e := errors.New("bls keys do not belong to the same shard")
 		t.Error("expected", e, "got", nil)

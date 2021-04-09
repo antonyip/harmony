@@ -92,16 +92,16 @@ func TestGetNextLeaderKeyShouldSucceed(t *testing.T) {
 
 	assert.Equal(t, int64(0), consensus.Decider.ParticipantsCount())
 
-	blsKeys := []*bls_core.PublicKey{}
-	wrappedBLSKeys := []bls.PublicKeyWrapper{}
+	blsKeys := []*bls_interface.BlsPublicKey{}
+	wrappedBLSKeys := []bls_interface.PublicKeyWrapper{}
 
 	keyCount := int64(5)
 	for i := int64(0); i < keyCount; i++ {
-		blsKey := harmony_bls.RandPrivateKey()
+		blsKey := bls_interface.RandPrivateKey()
 		blsPubKey := blsKey.GetPublicKey()
-		bytes := bls.SerializedPublicKey{}
+		bytes := bls_interface.SerializedPublicKey{}
 		bytes.FromLibBLSPublicKey(blsPubKey)
-		wrapped := bls.PublicKeyWrapper{Object: blsPubKey, Bytes: bytes}
+		wrapped := bls_interface.PublicKeyWrapper{Object: blsPubKey, Bytes: bytes}
 
 		blsKeys = append(blsKeys, blsPubKey)
 		wrappedBLSKeys = append(wrappedBLSKeys, wrapped)

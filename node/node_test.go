@@ -19,7 +19,7 @@ import (
 var testDBFactory = &shardchain.MemDBFactory{}
 
 func TestNewNode(t *testing.T) {
-	blsKey := bls.RandPrivateKey()
+	blsKey := bls_interface.RandPrivateKey()
 	pubKey := blsKey.GetPublicKey()
 	leader := p2p.Peer{IP: "127.0.0.1", Port: "8882", ConsensusPubKey: pubKey}
 	priKey, _, _ := utils.GenKeyP2P("127.0.0.1", "9902")
@@ -175,8 +175,8 @@ func makeLocalSyncingPeerProvider() *LocalSyncingPeerProvider {
 }
 
 func TestAddBeaconPeer(t *testing.T) {
-	pubKey1 := bls.RandPrivateKey().GetPublicKey()
-	pubKey2 := bls.RandPrivateKey().GetPublicKey()
+	pubKey1 := bls_interface.RandPrivateKey().GetPublicKey()
+	pubKey2 := bls_interface.RandPrivateKey().GetPublicKey()
 
 	peers1 := []*p2p.Peer{
 		{
@@ -192,7 +192,7 @@ func TestAddBeaconPeer(t *testing.T) {
 			PeerID:          "4567",
 		},
 	}
-	blsKey := bls.RandPrivateKey()
+	blsKey := bls_interface.RandPrivateKey()
 	pubKey := blsKey.GetPublicKey()
 	leader := p2p.Peer{IP: "127.0.0.1", Port: "8982", ConsensusPubKey: pubKey}
 	priKey, _, _ := utils.GenKeyP2P("127.0.0.1", "9902")

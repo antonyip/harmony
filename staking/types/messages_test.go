@@ -312,16 +312,16 @@ func cpTestDataSetup() {
 		CommissionRates:    cr,
 		MinSelfDelegation:  tenK,
 		MaxTotalDelegation: twelveK,
-		SlotPubKeys:        []bls.SerializedPublicKey{blsPubSigPairs[0].pub},
-		SlotKeySigs:        []bls.SerializedSignature{blsPubSigPairs[0].sig},
+		SlotPubKeys:        []bls_interface.SerializedPublicKey{blsPubSigPairs[0].pub},
+		SlotKeySigs:        []bls_interface.SerializedSignature{blsPubSigPairs[0].sig},
 		Amount:             twelveK,
 	}
 	zeroCreateValidator = CreateValidator{
 		CommissionRates:    zeroCr,
 		MinSelfDelegation:  common.Big0,
 		MaxTotalDelegation: common.Big0,
-		SlotPubKeys:        make([]bls.SerializedPublicKey, 0),
-		SlotKeySigs:        make([]bls.SerializedSignature, 0),
+		SlotPubKeys:        make([]bls_interface.SerializedPublicKey, 0),
+		SlotKeySigs:        make([]bls_interface.SerializedSignature, 0),
 		Amount:             common.Big0,
 	}
 

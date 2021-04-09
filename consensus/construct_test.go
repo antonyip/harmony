@@ -28,7 +28,7 @@ func TestConstructAnnounceMessage(test *testing.T) {
 	decider := quorum.NewDecider(
 		quorum.SuperMajorityVote, shard.BeaconChainShardID,
 	)
-	blsPriKey := bls.RandPrivateKey()
+	blsPriKey := bls_interface.RandPrivateKey()
 	consensus, err := New(
 		host, shard.BeaconChainShardID, leader, multibls.GetPrivateKeys(blsPriKey), decider,
 	)
@@ -36,20 +36,20 @@ func TestConstructAnnounceMessage(test *testing.T) {
 		test.Fatalf("Cannot create consensus: %v", err)
 	}
 	consensus.blockHash = [32]byte{}
-	pubKeyWrapper := bls.PublicKeyWrapper{Object: blsPriKey.GetPublicKey()}
+	pubKeyWrapper := bls_interface.PublicKeyWrapper{Object: blsPriKey.GetPublicKey()}
 	pubKeyWrapper.Bytes.FromLibBLSPublicKey(pubKeyWrapper.Object)
-	priKeyWrapper := bls.PrivateKeyWrapper{blsPriKey, &pubKeyWrapper}
-	if _, err = consensus.construct(msg_pb.MessageType_ANNOUNCE, nil, []*bls.PrivateKeyWrapper{&priKeyWrapper}); err != nil {
+	priKeyWrapper := bls_interface.PrivateKeyWrapper{blsPriKey, &pubKeyWrapper}
+	if _, err = consensus.construct(msg_pb.MessageType_ANNOUNCE, nil, []*bls_interface.PrivateKeyWrapper{&priKeyWrapper}); err != nil {
 		test.Fatalf("could not construct announce: %v", err)
 	}
 }
 
 func TestConstructPreparedMessage(test *testing.T) {
-	leaderPriKey := bls.RandPrivateKey()
+	leaderPriKey := bls_interface.RandPrivateKey()
 	leaderPubKey := leaderPriKey.GetPublicKey()
 	leader := p2p.Peer{IP: "127.0.0.1", Port: "19999", ConsensusPubKey: leaderPubKey}
 
-	validatorPriKey := bls.RandPrivateKey()
+	validatorPriKey := bls_interface.RandPrivateKey()
 	validatorPubKey := leaderPriKey.GetPublicKey()
 	priKey, _, _ := utils.GenKeyP2P("127.0.0.1", "9902")
 	host, err := p2p.NewHost(p2p.HostConfig{
@@ -62,7 +62,7 @@ func TestConstructPreparedMessage(test *testing.T) {
 	decider := quorum.NewDecider(
 		quorum.SuperMajorityVote, shard.BeaconChainShardID,
 	)
-	blsPriKey := bls.RandPrivateKey()
+	blsPriKey := bls_interface.RandPrivateKey()
 	consensus, err := New(
 		host, shard.BeaconChainShardID, leader, multibls.GetPrivateKeys(blsPriKey), decider,
 	)
@@ -74,15 +74,15 @@ func TestConstructPreparedMessage(test *testing.T) {
 	consensus.blockHash = [32]byte{}
 
 	message := "test string"
-	leaderKey := bls.SerializedPublicKey{}
+	leaderKey := bls_interface.SerializedPublicKey{}
 	leaderKey.FromLibBLSPublicKey(leaderPubKey)
-	leaderKeyWrapper := bls.PublicKeyWrapper{Object: leaderPubKey, Bytes: leaderKey}
-	validatorKey := bls.SerializedPublicKey{}
+	leaderKeyWrapper := bls_interface.PublicKeyWrapper{Object: leaderPubKey, Bytes: leaderKey}
+	validatorKey := bls_interface.SerializedPublicKey{}
 	validatorKey.FromLibBLSPublicKey(validatorPubKey)
-	validatorKeyWrapper := bls.PublicKeyWrapper{Object: validatorPubKey, Bytes: validatorKey}
+	validatorKeyWrapper := bls_interface.PublicKeyWrapper{Object: validatorPubKey, Bytes: validatorKey}
 	consensus.Decider.AddNewVote(
 		quorum.Prepare,
-		[]*bls.PublicKeyWrapper{&leaderKeyWrapper},
+		[]*bls_interface.PublicKeyWrapper{&leaderKeyWrapper},
 		leaderPriKey.Sign(message),
 		common.BytesToHash(consensus.blockHash[:]),
 		consensus.blockNum,
@@ -90,7 +90,7 @@ func TestConstructPreparedMessage(test *testing.T) {
 	)
 	if _, err := consensus.Decider.AddNewVote(
 		quorum.Prepare,
-		[]*bls.PublicKeyWrapper{&validatorKeyWrapper},
+		[]*bls_interface.PublicKeyWrapper{&validatorKeyWrapper},
 		validatorPriKey.Sign(message),
 		common.BytesToHash(consensus.blockHash[:]),
 		consensus.blockNum,
@@ -107,10 +107,10 @@ func TestConstructPreparedMessage(test *testing.T) {
 		test.Log(errors.New("prepareBitmap.SetKey"))
 	}
 
-	pubKeyWrapper := bls.PublicKeyWrapper{Object: blsPriKey.GetPublicKey()}
+	pubKeyWrapper := bls_interface.PublicKeyWrapper{Object: blsPriKey.GetPublicKey()}
 	pubKeyWrapper.Bytes.FromLibBLSPublicKey(pubKeyWrapper.Object)
-	priKeyWrapper := bls.PrivateKeyWrapper{blsPriKey, &pubKeyWrapper}
-	network, err := consensus.construct(msg_pb.MessageType_PREPARED, nil, []*bls.PrivateKeyWrapper{&priKeyWrapper})
+	priKeyWrapper := bls_interface.PrivateKeyWrapper{blsPriKey, &pubKeyWrapper}
+	network, err := consensus.construct(msg_pb.MessageType_PREPARED, nil, []*bls_interface.PrivateKeyWrapper{&priKeyWrapper})
 	if err != nil {
 		test.Errorf("Error when creating prepared message")
 	}
@@ -130,15 +130,15 @@ func TestConstructPrepareMessage(test *testing.T) {
 		test.Fatalf("newhost failure: %v", err)
 	}
 
-	blsPriKey1 := bls.RandPrivateKey()
-	pubKeyWrapper1 := bls.PublicKeyWrapper{Object: blsPriKey1.GetPublicKey()}
+	blsPriKey1 := bls_interface.RandPrivateKey()
+	pubKeyWrapper1 := bls_interface.PublicKeyWrapper{Object: blsPriKey1.GetPublicKey()}
 	pubKeyWrapper1.Bytes.FromLibBLSPublicKey(pubKeyWrapper1.Object)
-	priKeyWrapper1 := bls.PrivateKeyWrapper{blsPriKey1, &pubKeyWrapper1}
+	priKeyWrapper1 := bls_interface.PrivateKeyWrapper{blsPriKey1, &pubKeyWrapper1}
 
-	blsPriKey2 := bls.RandPrivateKey()
-	pubKeyWrapper2 := bls.PublicKeyWrapper{Object: blsPriKey2.GetPublicKey()}
+	blsPriKey2 := bls_interface.RandPrivateKey()
+	pubKeyWrapper2 := bls_interface.PublicKeyWrapper{Object: blsPriKey2.GetPublicKey()}
 	pubKeyWrapper2.Bytes.FromLibBLSPublicKey(pubKeyWrapper2.Object)
-	priKeyWrapper2 := bls.PrivateKeyWrapper{blsPriKey2, &pubKeyWrapper2}
+	priKeyWrapper2 := bls_interface.PrivateKeyWrapper{blsPriKey2, &pubKeyWrapper2}
 
 	decider := quorum.NewDecider(
 		quorum.SuperMajorityStake, shard.BeaconChainShardID,
@@ -150,7 +150,7 @@ func TestConstructPrepareMessage(test *testing.T) {
 	if err != nil {
 		test.Fatalf("Cannot create consensus: %v", err)
 	}
-	consensus.UpdatePublicKeys([]bls.PublicKeyWrapper{pubKeyWrapper1, pubKeyWrapper2})
+	consensus.UpdatePublicKeys([]bls_interface.PublicKeyWrapper{pubKeyWrapper1, pubKeyWrapper2})
 
 	consensus.SetCurBlockViewID(2)
 	consensus.blockHash = [32]byte{}
@@ -158,7 +158,7 @@ func TestConstructPrepareMessage(test *testing.T) {
 	consensus.blockNum = 1000
 
 	sig := priKeyWrapper1.Pri.SignHash(consensus.blockHash[:])
-	network, err := consensus.construct(msg_pb.MessageType_PREPARE, nil, []*bls.PrivateKeyWrapper{&priKeyWrapper1})
+	network, err := consensus.construct(msg_pb.MessageType_PREPARE, nil, []*bls_interface.PrivateKeyWrapper{&priKeyWrapper1})
 
 	if err != nil {
 		test.Fatalf("could not construct announce: %v", err)
@@ -179,7 +179,7 @@ func TestConstructPrepareMessage(test *testing.T) {
 		test.Errorf("Payload is not populated correctly")
 	}
 
-	keys := []*bls.PrivateKeyWrapper{&priKeyWrapper1, &priKeyWrapper2}
+	keys := []*bls_interface.PrivateKeyWrapper{&priKeyWrapper1, &priKeyWrapper2}
 	aggSig := bls_interface.BlsSign{}
 	for _, priKey := range keys {
 		if s := priKey.Pri.SignHash(consensus.blockHash[:]); s != nil {
@@ -222,15 +222,15 @@ func TestConstructCommitMessage(test *testing.T) {
 		test.Fatalf("newhost failure: %v", err)
 	}
 
-	blsPriKey1 := bls.RandPrivateKey()
-	pubKeyWrapper1 := bls.PublicKeyWrapper{Object: blsPriKey1.GetPublicKey()}
+	blsPriKey1 := bls_interface.RandPrivateKey()
+	pubKeyWrapper1 := bls_interface.PublicKeyWrapper{Object: blsPriKey1.GetPublicKey()}
 	pubKeyWrapper1.Bytes.FromLibBLSPublicKey(pubKeyWrapper1.Object)
-	priKeyWrapper1 := bls.PrivateKeyWrapper{blsPriKey1, &pubKeyWrapper1}
+	priKeyWrapper1 := bls_interface.PrivateKeyWrapper{blsPriKey1, &pubKeyWrapper1}
 
-	blsPriKey2 := bls.RandPrivateKey()
-	pubKeyWrapper2 := bls.PublicKeyWrapper{Object: blsPriKey2.GetPublicKey()}
+	blsPriKey2 := bls_interface.RandPrivateKey()
+	pubKeyWrapper2 := bls_interface.PublicKeyWrapper{Object: blsPriKey2.GetPublicKey()}
 	pubKeyWrapper2.Bytes.FromLibBLSPublicKey(pubKeyWrapper2.Object)
-	priKeyWrapper2 := bls.PrivateKeyWrapper{blsPriKey2, &pubKeyWrapper2}
+	priKeyWrapper2 := bls_interface.PrivateKeyWrapper{blsPriKey2, &pubKeyWrapper2}
 
 	decider := quorum.NewDecider(
 		quorum.SuperMajorityStake, shard.BeaconChainShardID,
@@ -242,7 +242,7 @@ func TestConstructCommitMessage(test *testing.T) {
 	if err != nil {
 		test.Fatalf("Cannot create consensus: %v", err)
 	}
-	consensus.UpdatePublicKeys([]bls.PublicKeyWrapper{pubKeyWrapper1, pubKeyWrapper2})
+	consensus.UpdatePublicKeys([]bls_interface.PublicKeyWrapper{pubKeyWrapper1, pubKeyWrapper2})
 
 	consensus.SetCurBlockViewID(2)
 	consensus.blockHash = [32]byte{}
@@ -252,7 +252,7 @@ func TestConstructCommitMessage(test *testing.T) {
 	sigPayload := []byte("payload")
 
 	sig := priKeyWrapper1.Pri.SignHash(sigPayload)
-	network, err := consensus.construct(msg_pb.MessageType_COMMIT, sigPayload, []*bls.PrivateKeyWrapper{&priKeyWrapper1})
+	network, err := consensus.construct(msg_pb.MessageType_COMMIT, sigPayload, []*bls_interface.PrivateKeyWrapper{&priKeyWrapper1})
 
 	if err != nil {
 		test.Fatalf("could not construct announce: %v", err)
@@ -273,7 +273,7 @@ func TestConstructCommitMessage(test *testing.T) {
 		test.Errorf("Payload is not populated correctly")
 	}
 
-	keys := []*bls.PrivateKeyWrapper{&priKeyWrapper1, &priKeyWrapper2}
+	keys := []*bls_interface.PrivateKeyWrapper{&priKeyWrapper1, &priKeyWrapper2}
 	aggSig := bls_interface.BlsSign{}
 	for _, priKey := range keys {
 		if s := priKey.Pri.SignHash(sigPayload); s != nil {
@@ -315,7 +315,7 @@ func TestPopulateMessageFields(t *testing.T) {
 	if err != nil {
 		t.Fatalf("newhost failure: %v", err)
 	}
-	blsPriKey := bls.RandPrivateKey()
+	blsPriKey := bls_interface.RandPrivateKey()
 	decider := quorum.NewDecider(
 		quorum.SuperMajorityVote, shard.BeaconChainShardID,
 	)
@@ -335,7 +335,7 @@ func TestPopulateMessageFields(t *testing.T) {
 		},
 	}
 
-	keyBytes := bls.SerializedPublicKey{}
+	keyBytes := bls_interface.SerializedPublicKey{}
 	keyBytes.FromLibBLSPublicKey(blsPriKey.GetPublicKey())
 	consensusMsg := consensus.populateMessageFieldsAndSender(msg.GetConsensus(), consensus.blockHash[:],
 		keyBytes)

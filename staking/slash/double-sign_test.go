@@ -775,7 +775,7 @@ func defaultSlashRecord() Record {
 
 func makeVoteData(kp blsKeyPair, block *types.Block) Vote {
 	return Vote{
-		SignerPubKeys:   []bls.SerializedPublicKey{kp.Pub()},
+		SignerPubKeys:   []bls_interface.SerializedPublicKey{kp.Pub()},
 		BlockHeaderHash: block.Hash(),
 		Signature:       kp.Sign(block),
 	}
@@ -798,7 +798,7 @@ func makeBlockForTest(epoch int64, index int) *types.Block {
 }
 
 func defaultValidatorWrapper() *staking.ValidatorWrapper {
-	pubKeys := []bls.SerializedPublicKey{offPub}
+	pubKeys := []bls_interface.SerializedPublicKey{offPub}
 	v := defaultTestValidator(pubKeys)
 	ds := defaultTestDelegations()
 
@@ -813,7 +813,7 @@ func defaultSnapValidatorWrapper() *staking.ValidatorWrapper {
 }
 
 func defaultCurrentValidatorWrapper() *staking.ValidatorWrapper {
-	pubKeys := []bls.SerializedPublicKey{offPub}
+	pubKeys := []bls_interface.SerializedPublicKey{offPub}
 	v := defaultTestValidator(pubKeys)
 	ds := defaultDelegationsWithUndelegates()
 
@@ -957,7 +957,7 @@ func genKeyPairs(size int) []blsKeyPair {
 }
 
 func genKeyPair() blsKeyPair {
-	pri := bls.RandPrivateKey()
+	pri := bls_interface.RandPrivateKey()
 	pub := pri.GetPublicKey()
 	return blsKeyPair{
 		pri: pri,
@@ -966,7 +966,7 @@ func genKeyPair() blsKeyPair {
 }
 
 func (kp blsKeyPair) Pub() bls_interface.SerializedPublicKey {
-	var pub bls.SerializedPublicKey
+	var pub bls_interface.SerializedPublicKey
 	copy(pub[:], kp.pub.Serialize())
 	return pub
 }

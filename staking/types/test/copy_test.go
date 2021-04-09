@@ -16,7 +16,7 @@ import (
 )
 
 var (
-	testPub = bls.SerializedPublicKey{1}
+	testPub = bls_interface.SerializedPublicKey{1}
 )
 
 func TestCopyValidatorWrapper(t *testing.T) {
@@ -83,7 +83,7 @@ func makeNonZeroValidator() staking.Validator {
 	}
 	v := staking.Validator{
 		Address:              common.BigToAddress(common.Big0),
-		SlotPubKeys:          []bls.SerializedPublicKey{testPub},
+		SlotPubKeys:          []bls_interface.SerializedPublicKey{testPub},
 		LastEpochInCommittee: big.NewInt(20),
 		MinSelfDelegation:    common.Big1,
 		MaxTotalDelegation:   common.Big1,
@@ -97,7 +97,7 @@ func makeNonZeroValidator() staking.Validator {
 
 func makeZeroValidator() staking.Validator {
 	v := staking.Validator{
-		SlotPubKeys:          make([]bls.SerializedPublicKey, 0),
+		SlotPubKeys:          make([]bls_interface.SerializedPublicKey, 0),
 		LastEpochInCommittee: common.Big0,
 		MinSelfDelegation:    common.Big0,
 		MaxTotalDelegation:   common.Big0,

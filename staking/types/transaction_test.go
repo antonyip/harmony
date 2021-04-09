@@ -62,7 +62,7 @@ func CreateTestNewTransaction() (*StakingTransaction, error) {
 			MinSelfDelegation:  big.NewInt(10),
 			MaxTotalDelegation: big.NewInt(3000),
 			ValidatorAddress:   common.Address(dAddr),
-			SlotPubKeys:        []bls.SerializedPublicKey{pub},
+			SlotPubKeys:        []bls_interface.SerializedPublicKey{pub},
 			Amount:             big.NewInt(100),
 		}
 	}

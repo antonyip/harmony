@@ -19,7 +19,7 @@ import (
 
 var (
 	blsPubSigPairs = makeBLSPubSigPairs(5)
-	hmyBLSPub      bls.SerializedPublicKey
+	hmyBLSPub      bls_interface.SerializedPublicKey
 
 	hmyBLSPubStr     = "c2962419d9999a87daa134f6d177f9ccabfe168a470587b13dd02ce91d1690a92170e5949d3dbdfc1b13fd7327dbef8c"
 	validatorAddr, _ = common2.Bech32ToAddress("one1pdv9lrdwl0rg5vglh4xtyrv3wjk3wsqket7zxy")
@@ -173,7 +173,7 @@ func TestValidator_SanityCheck(t *testing.T) {
 		},
 		{
 			func(v *Validator) {
-				v.SlotPubKeys = []bls.SerializedPublicKey{blsPubSigPairs[0].pub, blsPubSigPairs[0].pub}
+				v.SlotPubKeys = []bls_interface.SerializedPublicKey{blsPubSigPairs[0].pub, blsPubSigPairs[0].pub}
 			},
 			errDuplicateSlotKeys,
 		},
@@ -704,22 +704,22 @@ func makeBLSPubSigPairs(size int) []blsPubSigPair {
 }
 
 func makeBLSPubSigPair() blsPubSigPair {
-	blsPriv := bls.RandPrivateKey()
+	blsPriv := bls_interface.RandPrivateKey()
 	blsPub := blsPriv.GetPublicKey()
 	msgHash := hash.Keccak256([]byte(BLSVerificationStr))
 	sig := blsPriv.SignHash(msgHash)
 
-	var shardPub bls.SerializedPublicKey
+	var shardPub bls_interface.SerializedPublicKey
 	copy(shardPub[:], blsPub.Serialize())
 
-	var shardSig bls.SerializedSignature
+	var shardSig bls_interface.SerializedSignature
 	copy(shardSig[:], sig.Serialize())
 
 	return blsPubSigPair{shardPub, shardSig}
 }
 
 func getPubsFromPairs(pairs []blsPubSigPair, indexes []int) []bls_interface.SerializedPublicKey {
-	pubs := make([]bls.SerializedPublicKey, 0, len(indexes))
+	pubs := make([]bls_interface.SerializedPublicKey, 0, len(indexes))
 	for _, index := range indexes {
 		pubs = append(pubs, pairs[index].pub)
 	}
@@ -727,7 +727,7 @@ func getPubsFromPairs(pairs []blsPubSigPair, indexes []int) []bls_interface.Seri
 }
 
 func getSigsFromPairs(pairs []blsPubSigPair, indexes []int) []bls_interface.SerializedSignature {
-	sigs := make([]bls.SerializedSignature, 0, len(indexes))
+	sigs := make([]bls_interface.SerializedSignature, 0, len(indexes))
 	for _, index := range indexes {
 		sigs = append(sigs, pairs[index].sig)
 	}
@@ -746,7 +746,7 @@ func makeValidValidator() Validator {
 	}
 	v := Validator{
 		Address:              validatorAddr,
-		SlotPubKeys:          []bls.SerializedPublicKey{blsPubSigPairs[0].pub},
+		SlotPubKeys:          []bls_interface.SerializedPublicKey{blsPubSigPairs[0].pub},
 		LastEpochInCommittee: big.NewInt(20),
 		MinSelfDelegation:    tenK,
 		MaxTotalDelegation:   twelveK,

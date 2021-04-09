@@ -25,15 +25,15 @@ func TestGetDefaultValidatorWrapper(t *testing.T) {
 func TestGetDefaultValidatorWithAddr(t *testing.T) {
 	tests := []struct {
 		addr common.Address
-		keys []bls.SerializedPublicKey
+		keys []bls_interface.SerializedPublicKey
 	}{
 		{
 			addr: common.BigToAddress(common.Big1),
-			keys: []bls.SerializedPublicKey{{1}, {}},
+			keys: []bls_interface.SerializedPublicKey{{1}, {}},
 		},
 		{
 			addr: common.Address{},
-			keys: make([]bls.SerializedPublicKey, 0),
+			keys: make([]bls_interface.SerializedPublicKey, 0),
 		},
 		{},
 	}
@@ -53,15 +53,15 @@ func TestGetDefaultValidatorWithAddr(t *testing.T) {
 func TestGetDefaultValidatorWrapperWithAddr(t *testing.T) {
 	tests := []struct {
 		addr common.Address
-		keys []bls.SerializedPublicKey
+		keys []bls_interface.SerializedPublicKey
 	}{
 		{
 			addr: common.BigToAddress(common.Big1),
-			keys: []bls.SerializedPublicKey{{1}, {}},
+			keys: []bls_interface.SerializedPublicKey{{1}, {}},
 		},
 		{
 			addr: common.Address{},
-			keys: make([]bls.SerializedPublicKey, 0),
+			keys: make([]bls_interface.SerializedPublicKey, 0),
 		},
 		{},
 	}

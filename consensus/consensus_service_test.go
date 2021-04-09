@@ -24,7 +24,7 @@ func TestSignAndMarshalConsensusMessage(t *testing.T) {
 		t.Fatalf("newhost failure: %v", err)
 	}
 	decider := quorum.NewDecider(quorum.SuperMajorityVote, shard.BeaconChainShardID)
-	blsPriKey := bls.RandPrivateKey()
+	blsPriKey := bls_interface.RandPrivateKey()
 	consensus, err := New(
 		host, shard.BeaconChainShardID, leader, multibls.GetPrivateKeys(blsPriKey), decider,
 	)
@@ -58,7 +58,7 @@ func TestSetViewID(t *testing.T) {
 	decider := quorum.NewDecider(
 		quorum.SuperMajorityVote, shard.BeaconChainShardID,
 	)
-	blsPriKey := bls.RandPrivateKey()
+	blsPriKey := bls_interface.RandPrivateKey()
 	consensus, err := New(
 		host, shard.BeaconChainShardID, leader, multibls.GetPrivateKeys(blsPriKey), decider,
 	)

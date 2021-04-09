@@ -77,7 +77,7 @@ func TestSubmitVote(test *testing.T) {
 
 	message := "test string"
 	blsPriKey1 := bls_interface.RandPrivateKey()
-	pubKeyWrapper1 := bls.PublicKeyWrapper{Object: blsPriKey1.GetPublicKey()}
+	pubKeyWrapper1 := bls_interface.PublicKeyWrapper{Object: blsPriKey1.GetPublicKey()}
 	pubKeyWrapper1.Bytes.FromLibBLSPublicKey(pubKeyWrapper1.Object)
 
 	blsPriKey2 := bls_interface.RandPrivateKey()
@@ -88,7 +88,7 @@ func TestSubmitVote(test *testing.T) {
 
 	if _, err := decider.submitVote(
 		Prepare,
-		[]bls.SerializedPublicKey{pubKeyWrapper1.Bytes},
+		[]bls_interface.SerializedPublicKey{pubKeyWrapper1.Bytes},
 		blsPriKey1.Sign(message),
 		common.BytesToHash(blockHash[:]),
 		blockNum,
@@ -99,7 +99,7 @@ func TestSubmitVote(test *testing.T) {
 
 	if _, err := decider.submitVote(
 		Prepare,
-		[]bls.SerializedPublicKey{pubKeyWrapper2.Bytes},
+		[]bls_interface.SerializedPublicKey{pubKeyWrapper2.Bytes},
 		blsPriKey2.Sign(message),
 		common.BytesToHash(blockHash[:]),
 		blockNum,
@@ -129,23 +129,23 @@ func TestSubmitVoteAggregateSig(test *testing.T) {
 		SuperMajorityStake, shard.BeaconChainShardID,
 	)
 
-	blsPriKey1 := bls.RandPrivateKey()
-	pubKeyWrapper1 := bls.PublicKeyWrapper{Object: blsPriKey1.GetPublicKey()}
+	blsPriKey1 := bls_interface.RandPrivateKey()
+	pubKeyWrapper1 := bls_interface.PublicKeyWrapper{Object: blsPriKey1.GetPublicKey()}
 	pubKeyWrapper1.Bytes.FromLibBLSPublicKey(pubKeyWrapper1.Object)
 
-	blsPriKey2 := bls.RandPrivateKey()
-	pubKeyWrapper2 := bls.PublicKeyWrapper{Object: blsPriKey2.GetPublicKey()}
+	blsPriKey2 := bls_interface.RandPrivateKey()
+	pubKeyWrapper2 := bls_interface.PublicKeyWrapper{Object: blsPriKey2.GetPublicKey()}
 	pubKeyWrapper2.Bytes.FromLibBLSPublicKey(pubKeyWrapper2.Object)
 
-	blsPriKey3 := bls.RandPrivateKey()
-	pubKeyWrapper3 := bls.PublicKeyWrapper{Object: blsPriKey3.GetPublicKey()}
+	blsPriKey3 := bls_interface.RandPrivateKey()
+	pubKeyWrapper3 := bls_interface.PublicKeyWrapper{Object: blsPriKey3.GetPublicKey()}
 	pubKeyWrapper3.Bytes.FromLibBLSPublicKey(pubKeyWrapper3.Object)
 
-	decider.UpdateParticipants([]bls.PublicKeyWrapper{pubKeyWrapper1, pubKeyWrapper2})
+	decider.UpdateParticipants([]bls_interface.PublicKeyWrapper{pubKeyWrapper1, pubKeyWrapper2})
 
 	decider.submitVote(
 		Prepare,
-		[]bls.SerializedPublicKey{pubKeyWrapper1.Bytes},
+		[]bls_interface.SerializedPublicKey{pubKeyWrapper1.Bytes},
 		blsPriKey1.SignHash(blockHash[:]),
 		common.BytesToHash(blockHash[:]),
 		blockNum,
@@ -160,7 +160,7 @@ func TestSubmitVoteAggregateSig(test *testing.T) {
 	}
 	if _, err := decider.submitVote(
 		Prepare,
-		[]bls.SerializedPublicKey{pubKeyWrapper2.Bytes, pubKeyWrapper3.Bytes},
+		[]bls_interface.SerializedPublicKey{pubKeyWrapper2.Bytes, pubKeyWrapper3.Bytes},
 		aggSig,
 		common.BytesToHash(blockHash[:]),
 		blockNum,
@@ -180,7 +180,7 @@ func TestSubmitVoteAggregateSig(test *testing.T) {
 
 	if _, err := decider.submitVote(
 		Prepare,
-		[]bls.SerializedPublicKey{pubKeyWrapper2.Bytes},
+		[]bls_interface.SerializedPublicKey{pubKeyWrapper2.Bytes},
 		aggSig,
 		common.BytesToHash(blockHash[:]),
 		blockNum,
@@ -214,7 +214,7 @@ func TestAddNewVote(test *testing.T) {
 		}
 		sKeys = append(sKeys, sKey)
 		slotList = append(slotList, newSlot)
-		wrapper := bls.PublicKeyWrapper{Object: sKey.GetPublicKey()}
+		wrapper := bls_interface.PublicKeyWrapper{Object: sKey.GetPublicKey()}
 		wrapper.Bytes.FromLibBLSPublicKey(wrapper.Object)
 		pubKeys = append(pubKeys, wrapper)
 	}
@@ -233,7 +233,7 @@ func TestAddNewVote(test *testing.T) {
 
 	// aggregate sig from all of 3 harmony nodes
 	decider.AddNewVote(Prepare,
-		[]*bls.PublicKeyWrapper{&pubKeys[0], &pubKeys[1], &pubKeys[2]},
+		[]*bls_interface.PublicKeyWrapper{&pubKeys[0], &pubKeys[1], &pubKeys[2]},
 		aggSig,
 		common.BytesToHash(blockHash[:]),
 		blockNum,
@@ -256,7 +256,7 @@ func TestAddNewVote(test *testing.T) {
 		}
 	}
 	_, err := decider.AddNewVote(Prepare,
-		[]*bls.PublicKeyWrapper{&pubKeys[3], &pubKeys[4], &pubKeys[5]},
+		[]*bls_interface.PublicKeyWrapper{&pubKeys[3], &pubKeys[4], &pubKeys[5]},
 		aggSig,
 		common.BytesToHash(blockHash[:]),
 		blockNum,
@@ -276,7 +276,7 @@ func TestAddNewVote(test *testing.T) {
 
 	// one sig from external node
 	_, err = decider.AddNewVote(Prepare,
-		[]*bls.PublicKeyWrapper{&pubKeys[3]},
+		[]*bls_interface.PublicKeyWrapper{&pubKeys[3]},
 		sKeys[3].SignHash(blockHash[:]),
 		common.BytesToHash(blockHash[:]),
 		blockNum,
@@ -305,7 +305,7 @@ func TestAddNewVoteAggregateSig(test *testing.T) {
 
 	slotList := shard.SlotList{}
 	sKeys := []bls_interface.BlsSecretKey{}
-	pubKeys := []bls_interface.BlsPublicKeyWrapper{}
+	pubKeys := []bls_interface.PublicKeyWrapper{}
 
 	quorumNodes := 5
 
@@ -316,7 +316,7 @@ func TestAddNewVoteAggregateSig(test *testing.T) {
 		}
 		sKeys = append(sKeys, sKey)
 		slotList = append(slotList, newSlot)
-		wrapper := bls.PublicKeyWrapper{Object: sKey.GetPublicKey()}
+		wrapper := bls_interface.PublicKeyWrapper{Object: sKey.GetPublicKey()}
 		wrapper.Bytes.FromLibBLSPublicKey(wrapper.Object)
 		pubKeys = append(pubKeys, wrapper)
 	}
@@ -338,7 +338,7 @@ func TestAddNewVoteAggregateSig(test *testing.T) {
 
 	// aggregate sig from all of 2 harmony nodes
 	decider.AddNewVote(Prepare,
-		[]*bls.PublicKeyWrapper{&pubKeys[0], &pubKeys[1]},
+		[]*bls_interface.PublicKeyWrapper{&pubKeys[0], &pubKeys[1]},
 		aggSig,
 		common.BytesToHash(blockHash[:]),
 		blockNum,
@@ -359,7 +359,7 @@ func TestAddNewVoteAggregateSig(test *testing.T) {
 		}
 	}
 	decider.AddNewVote(Prepare,
-		[]*bls.PublicKeyWrapper{&pubKeys[3], &pubKeys[4]},
+		[]*bls_interface.PublicKeyWrapper{&pubKeys[3], &pubKeys[4]},
 		aggSig,
 		common.BytesToHash(blockHash[:]),
 		blockNum,
@@ -386,7 +386,7 @@ func TestAddNewVoteInvalidAggregateSig(test *testing.T) {
 
 	slotList := shard.SlotList{}
 	sKeys := []bls_interface.BlsSecretKey{}
-	pubKeys := []bls_interface.BlsPublicKeyWrapper{}
+	pubKeys := []bls_interface.PublicKeyWrapper{}
 
 	quorumNodes := 8
 
@@ -397,7 +397,7 @@ func TestAddNewVoteInvalidAggregateSig(test *testing.T) {
 		}
 		sKeys = append(sKeys, sKey)
 		slotList = append(slotList, newSlot)
-		wrapper := bls.PublicKeyWrapper{Object: sKey.GetPublicKey()}
+		wrapper := bls_interface.PublicKeyWrapper{Object: sKey.GetPublicKey()}
 		wrapper.Bytes.FromLibBLSPublicKey(wrapper.Object)
 		pubKeys = append(pubKeys, wrapper)
 	}
@@ -422,7 +422,7 @@ func TestAddNewVoteInvalidAggregateSig(test *testing.T) {
 
 	// aggregate sig from all of 2 harmony nodes
 	decider.AddNewVote(Prepare,
-		[]*bls.PublicKeyWrapper{&pubKeys[0], &pubKeys[1]},
+		[]*bls_interface.PublicKeyWrapper{&pubKeys[0], &pubKeys[1]},
 		aggSig,
 		common.BytesToHash(blockHash[:]),
 		blockNum,
@@ -443,7 +443,7 @@ func TestAddNewVoteInvalidAggregateSig(test *testing.T) {
 	}
 	// aggregate sig from all of 2 external nodes
 	_, err := decider.AddNewVote(Prepare,
-		[]*bls.PublicKeyWrapper{&pubKeys[3], &pubKeys[4]},
+		[]*bls_interface.PublicKeyWrapper{&pubKeys[3], &pubKeys[4]},
 		aggSig,
 		common.BytesToHash(blockHash[:]),
 		blockNum,
@@ -467,7 +467,7 @@ func TestAddNewVoteInvalidAggregateSig(test *testing.T) {
 	}
 
 	_, err = decider.AddNewVote(Prepare,
-		[]*bls.PublicKeyWrapper{&pubKeys[3], &pubKeys[7]},
+		[]*bls_interface.PublicKeyWrapper{&pubKeys[3], &pubKeys[7]},
 		aggSig,
 		common.BytesToHash(blockHash[:]),
 		blockNum,
@@ -481,7 +481,7 @@ func TestAddNewVoteInvalidAggregateSig(test *testing.T) {
 	}
 
 	_, err = decider.AddNewVote(Prepare,
-		[]*bls.PublicKeyWrapper{&pubKeys[6], &pubKeys[5], &pubKeys[6]},
+		[]*bls_interface.PublicKeyWrapper{&pubKeys[6], &pubKeys[5], &pubKeys[6]},
 		aggSig,
 		common.BytesToHash(blockHash[:]),
 		blockNum,
@@ -502,7 +502,7 @@ func TestInvalidAggregateSig(test *testing.T) {
 
 	slotList := shard.SlotList{}
 	sKeys := []bls_interface.BlsSecretKey{}
-	pubKeys := []bls_interface.BlsPublicKeyWrapper{}
+	pubKeys := []bls_interface.PublicKeyWrapper{}
 
 	quorumNodes := 8
 
@@ -513,7 +513,7 @@ func TestInvalidAggregateSig(test *testing.T) {
 		}
 		sKeys = append(sKeys, sKey)
 		slotList = append(slotList, newSlot)
-		wrapper := bls.PublicKeyWrapper{Object: sKey.GetPublicKey()}
+		wrapper := bls_interface.PublicKeyWrapper{Object: sKey.GetPublicKey()}
 		wrapper.Bytes.FromLibBLSPublicKey(wrapper.Object)
 		pubKeys = append(pubKeys, wrapper)
 	}

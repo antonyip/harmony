@@ -578,7 +578,7 @@ func newTestStateDBFromCommittee(cmt *shard.Committee) testStateDB {
 		}
 		var wrapper staking.ValidatorWrapper
 		wrapper.Address = slot.EcdsaAddress
-		wrapper.SlotPubKeys = []bls.SerializedPublicKey{slot.BLSPublicKey}
+		wrapper.SlotPubKeys = []bls_interface.SerializedPublicKey{slot.BLSPublicKey}
 		wrapper.Counters.NumBlocksSigned = new(big.Int).SetInt64(1)
 		wrapper.Counters.NumBlocksToSign = new(big.Int).SetInt64(1)
 
@@ -594,7 +594,7 @@ func (state testStateDB) snapshot() testStateDB {
 		wrapperCpy := staking.ValidatorWrapper{
 			Validator: staking.Validator{
 				Address:     addr,
-				SlotPubKeys: make([]bls.SerializedPublicKey, 1),
+				SlotPubKeys: make([]bls_interface.SerializedPublicKey, 1),
 			},
 		}
 		copy(wrapperCpy.SlotPubKeys, wrapper.SlotPubKeys)
@@ -675,8 +675,8 @@ func makeTestCommittee(n int, shardID uint32) *shard.Committee {
 
 func makeHmySlot(seed int, shardID uint32) shard.Slot {
 	addr := common.BigToAddress(new(big.Int).SetInt64(int64(seed) + int64(shardID*1000000)))
-	var blsKey bls.SerializedPublicKey
-	copy(blsKey[:], bls.RandPrivateKey().GetPublicKey().Serialize())
+	var blsKey bls_interface.SerializedPublicKey
+	copy(blsKey[:], bls_interface.RandPrivateKey().GetPublicKey().Serialize())
 
 	return shard.Slot{
 		EcdsaAddress: addr,

@@ -4,7 +4,6 @@ import (
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/harmony-one/bls/ffi/go/bls"
 	"github.com/harmony-one/harmony/consensus/quorum"
 	"github.com/harmony-one/harmony/consensus/signature"
 	"github.com/harmony-one/harmony/core"
@@ -23,7 +22,7 @@ func AggregateSigForCommittee(
 	chain *core.BlockChain,
 	committee *shard.Committee,
 	decider quorum.Decider,
-	aggSignature *bls.Sign,
+	aggSignature *bls-bls_interface.BlsSign,
 	hash common.Hash,
 	blockNum, viewID uint64,
 	epoch *big.Int,

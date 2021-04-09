@@ -33,7 +33,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/event"
-	bls_core "github.com/harmony-one/bls/ffi/go/bls"
 	blockfactory "github.com/harmony-one/harmony/block/factory"
 	"github.com/harmony-one/harmony/common/denominations"
 	"github.com/harmony-one/harmony/core/state"
@@ -90,12 +89,12 @@ func (bc *testBlockChain) SubscribeChainHeadEvent(ch chan<- ChainHeadEvent) even
 // TODO: more staking tests in tx pool & testing lib
 func stakingCreateValidatorTransaction(key *ecdsa.PrivateKey) (*staking.StakingTransaction, error) {
 	stakePayloadMaker := func() (staking.Directive, interface{}) {
-		p := &bls_core.PublicKey{}
+		p := &bls_interface.BlsPublicKey{}
 		p.DeserializeHexStr(testBLSPubKey)
 		pub := bls.SerializedPublicKey{}
 		pub.FromLibBLSPublicKey(p)
 		messageBytes := []byte(staking.BLSVerificationStr)
-		privateKey := &bls_core.SecretKey{}
+		privateKey := &bls_interface.BlsSecretKey{}
 		privateKey.DeserializeHexStr(testBLSPrvKey)
 		msgHash := hash.Keccak256(messageBytes)
 		signature := privateKey.SignHash(msgHash[:])

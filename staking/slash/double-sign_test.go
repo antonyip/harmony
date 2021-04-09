@@ -13,7 +13,6 @@ import (
 	"github.com/harmony-one/harmony/crypto/bls_interface"
 
 	"github.com/ethereum/go-ethereum/common"
-	bls_core "github.com/harmony-one/bls/ffi/go/bls"
 	blockfactory "github.com/harmony-one/harmony/block/factory"
 	consensus_sig "github.com/harmony-one/harmony/consensus/signature"
 	"github.com/harmony-one/harmony/consensus/votepower"
@@ -945,8 +944,8 @@ func (maker *shardSlotMaker) makeSlot() shard.Slot {
 }
 
 type blsKeyPair struct {
-	pri *bls_core.SecretKey
-	pub *bls_core.PublicKey
+	pri *bls_interface.BlsSecretKey
+	pub *bls_interface.BlsPublicKey
 }
 
 func genKeyPairs(size int) []blsKeyPair {

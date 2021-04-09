@@ -11,7 +11,6 @@ import (
 	shardingconfig "github.com/harmony-one/harmony/internal/configs/sharding"
 
 	"github.com/ethereum/go-ethereum/common"
-	bls_core "github.com/harmony-one/bls/ffi/go/bls"
 	"github.com/harmony-one/harmony/numeric"
 	"github.com/harmony-one/harmony/shard"
 )
@@ -30,19 +29,19 @@ var (
 	stakeGen      = rand.New(rand.NewSource(541))
 )
 
-type secretKeyMap map[bls.SerializedPublicKey]bls_core.SecretKey
+type secretKeyMap map[bls_interface.SerializedPublicKey]bls_interface.BlsSecretKey
 
 func init() {
 	basicDecider = NewDecider(SuperMajorityStake, shard.BeaconChainShardID)
 	shard.Schedule = shardingconfig.LocalnetSchedule
 }
 
-func generateRandomSlot() (shard.Slot, bls_core.SecretKey) {
+func generateRandomSlot() (shard.Slot, bls_interface.BlsSecretKey) {
 	addr := common.Address{}
 	addr.SetBytes(big.NewInt(int64(accountGen.Int63n(maxAccountGen))).Bytes())
-	secretKey := bls_core.SecretKey{}
+	secretKey := bls_interface.BlsSecretKey{}
 	secretKey.Deserialize(big.NewInt(int64(keyGen.Int63n(maxKeyGen))).Bytes())
-	key := bls.SerializedPublicKey{}
+	key := bls_interface.SerializedPublicKey{}
 	key.FromLibBLSPublicKey(secretKey.GetPublicKey())
 	stake := numeric.NewDecFromBigInt(big.NewInt(int64(stakeGen.Int63n(maxStakeGen))))
 	return shard.Slot{addr, key, &stake}, secretKey
@@ -54,7 +53,7 @@ func setupBaseCase() (Decider, *TallyResult, shard.SlotList, map[string]secretKe
 	sKeys := map[string]secretKeyMap{}
 	sKeys[hmy] = secretKeyMap{}
 	sKeys[reg] = secretKeyMap{}
-	pubKeys := []bls.PublicKeyWrapper{}
+	pubKeys := []bls_interface.PublicKeyWrapper{}
 
 	for i := 0; i < quorumNodes; i++ {
 		newSlot, sKey := generateRandomSlot()
@@ -65,7 +64,7 @@ func setupBaseCase() (Decider, *TallyResult, shard.SlotList, map[string]secretKe
 			sKeys[reg][newSlot.BLSPublicKey] = sKey
 		}
 		slotList = append(slotList, newSlot)
-		wrapper := bls.PublicKeyWrapper{Object: sKey.GetPublicKey()}
+		wrapper := bls_interface.PublicKeyWrapper{Object: sKey.GetPublicKey()}
 		wrapper.Bytes.FromLibBLSPublicKey(wrapper.Object)
 		pubKeys = append(pubKeys, wrapper)
 	}
@@ -85,7 +84,7 @@ func setupBaseCase() (Decider, *TallyResult, shard.SlotList, map[string]secretKe
 func setupEdgeCase() (Decider, *TallyResult, shard.SlotList, secretKeyMap) {
 	slotList := shard.SlotList{}
 	sKeys := secretKeyMap{}
-	pubKeys := []bls.PublicKeyWrapper{}
+	pubKeys := []bls_interface.PublicKeyWrapper{}
 
 	for i := 0; i < quorumNodes; i++ {
 		newSlot, sKey := generateRandomSlot()
@@ -94,7 +93,7 @@ func setupEdgeCase() (Decider, *TallyResult, shard.SlotList, secretKeyMap) {
 			sKeys[newSlot.BLSPublicKey] = sKey
 		}
 		slotList = append(slotList, newSlot)
-		wrapper := bls.PublicKeyWrapper{Object: sKey.GetPublicKey()}
+		wrapper := bls_interface.PublicKeyWrapper{Object: sKey.GetPublicKey()}
 		wrapper.Bytes.FromLibBLSPublicKey(wrapper.Object)
 		pubKeys = append(pubKeys, wrapper)
 	}
@@ -114,7 +113,7 @@ func sign(d Decider, k secretKeyMap, p Phase) {
 	for k, v := range k {
 		sig := v.Sign(msg)
 		// TODO Make upstream test provide meaningful test values
-		d.AddNewVote(p, []*bls.PublicKeyWrapper{{Bytes: k}}, sig, common.Hash{}, 0, 0)
+		d.AddNewVote(p, []*bls_interface.PublicKeyWrapper{{Bytes: k}}, sig, common.Hash{}, 0, 0)
 	}
 }
 

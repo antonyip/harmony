@@ -2,10 +2,7 @@ package consensus
 
 import (
 	"testing"
-
 	"github.com/harmony-one/harmony/crypto/bls_interface"
-
-	bls_core "github.com/harmony-one/bls/ffi/go/bls"
 	"github.com/stretchr/testify/assert"
 )
 

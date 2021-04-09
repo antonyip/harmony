@@ -9,7 +9,6 @@ import (
 	"github.com/harmony-one/harmony/crypto/bls_interface"
 
 	"github.com/ethereum/go-ethereum/common"
-	bls_core "github.com/harmony-one/bls/ffi/go/bls"
 	common2 "github.com/harmony-one/harmony/internal/common"
 	numeric "github.com/harmony-one/harmony/numeric"
 )
@@ -39,9 +38,9 @@ func CreateTestNewTransaction() (*StakingTransaction, error) {
 	dAddr, _ := common2.Bech32ToAddress(testAccount)
 
 	stakePayloadMaker := func() (Directive, interface{}) {
-		p := &bls_core.PublicKey{}
+		p := &bls_interface.BlsPublicKey{}
 		p.DeserializeHexStr(testBLSPubKey)
-		pub := bls.SerializedPublicKey{}
+		pub := bls_interface.SerializedPublicKey{}
 		pub.FromLibBLSPublicKey(p)
 
 		ra, _ := numeric.NewDecFromStr("0.7")
@@ -87,9 +86,9 @@ func TestTransactionCopy(t *testing.T) {
 	newRate, _ := numeric.NewDecFromStr("0.5")
 	cv1.CommissionRates.Rate = newRate
 
-	p := &bls_core.PublicKey{}
+	p := &bls_interface.BlsPublicKey{}
 	p.DeserializeHexStr(testBLSPubKey2)
-	pub := bls.SerializedPublicKey{}
+	pub := bls_interface.SerializedPublicKey{}
 	pub.FromLibBLSPublicKey(p)
 	cv1.SlotPubKeys = append(cv1.SlotPubKeys, pub)
 

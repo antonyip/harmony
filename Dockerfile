@@ -35,7 +35,7 @@ RUN git clone https://github.com/harmony-one/harmony.git ${HMY_PATH}/harmony
 
 RUN git clone https://github.com/harmony-one/bls.git ${HMY_PATH}/bls
 
-RUN git clone https://github.com/supranational/blst ${HMY_PATH}/blst
+RUN git clone https://github.com/supranational/blst.git ${HMY_PATH}/blst
 
 RUN git clone https://github.com/harmony-one/mcl.git ${HMY_PATH}/mcl
 

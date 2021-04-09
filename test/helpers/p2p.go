@@ -1,7 +1,6 @@
 package helpers
 
 import (
-	"github.com/harmony-one/bls/ffi/go/bls"
 	"github.com/harmony-one/harmony/crypto/bls_interface"
 	nodeconfig "github.com/harmony-one/harmony/internal/configs/node"
 	"github.com/harmony-one/harmony/p2p"
@@ -45,7 +44,7 @@ func init() {
 }
 
 // GenerateHost - test helper to generate a new host
-func GenerateHost(address string, port string) (p2p.Host, *bls.PublicKey, error) {
+func GenerateHost(address string, port string) (p2p.Host, *bls_interface.BlsPublicKey, error) {
 	nodePrivateKey, _, err := GeneratePrivateKey()
 	if err != nil {
 		return nil, nil, errors.New("failed to generate private key for node")

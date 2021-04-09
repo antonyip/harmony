@@ -12,7 +12,6 @@ import (
 	"github.com/harmony-one/harmony/shard"
 
 	"github.com/ethereum/go-ethereum/common"
-	bls_core "github.com/harmony-one/bls/ffi/go/bls"
 	"github.com/harmony-one/harmony/crypto/bls_interface"
 	common2 "github.com/harmony-one/harmony/internal/common"
 	"github.com/harmony-one/harmony/internal/utils"
@@ -53,7 +52,7 @@ func (b Ballot) MarshalJSON() ([]byte, error) {
 
 // Round is a round of voting in any FBFT phase
 type Round struct {
-	AggregatedVote *bls_core.Sign
+	AggregatedVote *bls_interface.BlsSign
 	BallotBox      map[bls_interface.SerializedPublicKey]*Ballot
 }
 
@@ -65,7 +64,7 @@ func (b Ballot) String() string {
 // NewRound ..
 func NewRound() *Round {
 	return &Round{
-		AggregatedVote: &bls_core.Sign{},
+		AggregatedVote: &bls_interface.BlsSign{},
 		BallotBox:      map[bls_interface.SerializedPublicKey]*Ballot{},
 	}
 }

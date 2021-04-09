@@ -17,7 +17,6 @@ import (
 
 	common2 "github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
-	bls_core "github.com/harmony-one/bls/ffi/go/bls"
 	"github.com/harmony-one/harmony/core"
 	"github.com/harmony-one/harmony/core/state"
 	"github.com/harmony-one/harmony/core/vm"
@@ -39,16 +38,16 @@ var (
 )
 
 func init() {
-	bls_core.Init(bls_core.BLS12_381)
+	bls_interface.Init()
 }
 
 func generateBLSKeySigPair() (bls.SerializedPublicKey, bls.SerializedSignature) {
-	p := &bls_core.PublicKey{}
+	p := &bls_interface.BlsPublicKey{}
 	p.DeserializeHexStr(testBLSPubKey)
 	pub := bls.SerializedPublicKey{}
 	pub.FromLibBLSPublicKey(p)
 	messageBytes := []byte(staking.BLSVerificationStr)
-	privateKey := &bls_core.SecretKey{}
+	privateKey := &bls_interface.BlsSecretKey{}
 	privateKey.DeserializeHexStr(testBLSPrvKey)
 	msgHash := hash.Keccak256(messageBytes)
 	signature := privateKey.SignHash(msgHash[:])
@@ -207,7 +206,7 @@ func main() {
 	endTime = time.Now()
 	fmt.Printf("Time required to marshal: %f seconds\n", endTime.Sub(startTime).Seconds())
 	messageBytes, err := protobuf.Marshal(message)
-	msgSig := bls_core.Sign{}
+	msgSig := bls_interface.BlsSign{}
 	err = msgSig.Deserialize(signature)
 
 	startTime = time.Now()

@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/ethereum/go-ethereum/common"
-	bls_core "github.com/harmony-one/bls/ffi/go/bls"
 	msg_pb "github.com/harmony-one/harmony/api/proto/message"
 	"github.com/harmony-one/harmony/consensus/quorum"
 	"github.com/harmony-one/harmony/crypto/bls_interface"
@@ -181,7 +180,7 @@ func TestConstructPrepareMessage(test *testing.T) {
 	}
 
 	keys := []*bls.PrivateKeyWrapper{&priKeyWrapper1, &priKeyWrapper2}
-	aggSig := bls_core.Sign{}
+	aggSig := bls_interface.BlsSign{}
 	for _, priKey := range keys {
 		if s := priKey.Pri.SignHash(consensus.blockHash[:]); s != nil {
 			aggSig.Add(s)
@@ -275,7 +274,7 @@ func TestConstructCommitMessage(test *testing.T) {
 	}
 
 	keys := []*bls.PrivateKeyWrapper{&priKeyWrapper1, &priKeyWrapper2}
-	aggSig := bls_core.Sign{}
+	aggSig := bls_interface.BlsSign{}
 	for _, priKey := range keys {
 		if s := priKey.Pri.SignHash(sigPayload); s != nil {
 			aggSig.Add(s)

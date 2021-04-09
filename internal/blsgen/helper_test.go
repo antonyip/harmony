@@ -8,7 +8,6 @@ import (
 	"testing"
 
 	"github.com/ethereum/go-ethereum/common"
-	bls_core "github.com/harmony-one/bls/ffi/go/bls"
 )
 
 const (
@@ -78,7 +77,7 @@ func TestMultiKeyLoader_loadKeys(t *testing.T) {
 	loader := &multiKeyLoader{
 		keyFiles:      []string{keyFile1, keyFile2},
 		decrypters:    decrypters,
-		loadedSecrets: make([]*bls_core.SecretKey, 0, 2),
+		loadedSecrets: make([]*bls_interface.BlsSecretKey, 0, 2),
 	}
 	keys, err := loader.loadKeys()
 	if err != nil {
@@ -179,6 +178,6 @@ func (decrypter *testPassDecrypter) extension() string {
 	return testExt
 }
 
-func (decrypter *testPassDecrypter) decryptFile(keyFile string) (*bls_core.SecretKey, error) {
+func (decrypter *testPassDecrypter) decryptFile(keyFile string) (*bls_interface.BlsSecretKey, error) {
 	return decrypter.pd.decryptFile(keyFile)
 }

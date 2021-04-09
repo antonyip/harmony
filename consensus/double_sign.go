@@ -5,7 +5,6 @@ import (
 	"sort"
 
 	"github.com/ethereum/go-ethereum/common"
-	bls_core "github.com/harmony-one/bls/ffi/go/bls"
 	"github.com/harmony-one/harmony/consensus/quorum"
 	"github.com/harmony-one/harmony/crypto/bls_interface"
 	"github.com/harmony-one/harmony/staking/slash"
@@ -33,7 +32,7 @@ func (consensus *Consensus) checkDoubleSign(recvMsg *FBFTMessage) bool {
 							// hash, and if block hash is different, then that is a clear
 							// case of double signing
 							if areHeightsEqual && areViewIDsEqual && !areHeadersEqual {
-								var doubleSign bls_core.Sign
+								var doubleSign bls_interface.BlsSign
 								if err := doubleSign.Deserialize(recvMsg.Payload); err != nil {
 									consensus.getLogger().Err(err).Str("msg", recvMsg.String()).
 										Msg("could not deserialize potential double signer")

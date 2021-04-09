@@ -27,7 +27,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 
-	bls_core "github.com/harmony-one/bls/ffi/go/bls"
 	blockfactory "github.com/harmony-one/harmony/block/factory"
 	"github.com/harmony-one/harmony/core/types"
 	"github.com/harmony-one/harmony/crypto/hash"
@@ -153,12 +152,12 @@ func TestMixedLookupStorage(t *testing.T) {
 func sampleCreateValidatorStakingTxn() *staking.StakingTransaction {
 	key, _ := crypto.GenerateKey()
 	stakePayloadMaker := func() (staking.Directive, interface{}) {
-		p := &bls_core.PublicKey{}
+		p := &bls_interface.BlsPublicKey{}
 		p.DeserializeHexStr(testBLSPubKey)
 		pub := bls.SerializedPublicKey{}
 		pub.FromLibBLSPublicKey(p)
 		messageBytes := []byte(staking.BLSVerificationStr)
-		privateKey := &bls_core.SecretKey{}
+		privateKey := &bls_interface.BlsSecretKey{}
 		privateKey.DeserializeHexStr(testBLSPrvKey)
 		msgHash := hash.Keccak256(messageBytes)
 		signature := privateKey.SignHash(msgHash[:])

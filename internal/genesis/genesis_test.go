@@ -7,7 +7,6 @@ import (
 
 	"github.com/btcsuite/btcutil/bech32"
 	ethCommon "github.com/ethereum/go-ethereum/common"
-	"github.com/harmony-one/bls/ffi/go/bls"
 	"github.com/harmony-one/harmony/internal/common"
 )
 
@@ -43,7 +42,7 @@ func testAccounts(test *testing.T, accounts []DeployAccount) {
 			test.Error("Account address", account.Address, "is not valid:", err)
 		}
 
-		pubKey := bls.PublicKey{}
+		pubKey := bls_interface.BlsPublicKey{}
 		err = pubKey.DeserializeHexStr(account.BLSPublicKey)
 		if err != nil {
 			test.Error("Account bls public key", account.BLSPublicKey, "is not valid:", err)

@@ -142,10 +142,10 @@ func TestCompletePolicy(test *testing.T) {
 }
 
 func TestAggregatedSignature(test *testing.T) {
-	var sec bls.SecretKey
+	var sec bls_interface.BlsSecretKey
 	sec.SetByCSPRNG()
 
-	signs := []*bls.Sign{sec.Sign("message1"), sec.Sign("message2")}
+	signs := []*bls_interface.BlsSign{sec.Sign("message1"), sec.Sign("message2")}
 
 	multiSignature := AggregateSig(signs)
 

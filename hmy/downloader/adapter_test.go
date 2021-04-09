@@ -128,7 +128,7 @@ type dummyEngine struct{}
 func (e *dummyEngine) VerifyHeader(engine.ChainReader, *block.Header, bool) error {
 	return nil
 }
-func (e *dummyEngine) VerifyHeaderSignature(engine.ChainReader, *block.Header, bls.SerializedSignature, []byte) error {
+func (e *dummyEngine) VerifyHeaderSignature(engine.ChainReader, *block.Header, bls_interface.SerializedSignature, []byte) error {
 	return nil
 }
 func (e *dummyEngine) VerifyCrossLink(engine.ChainReader, types.CrossLink) error {

@@ -2,9 +2,6 @@ package staketest
 
 import (
 	"math/big"
-
-	"github.com/harmony-one/harmony/crypto/bls_interface"
-
 	staking "github.com/harmony-one/harmony/staking/types"
 )
 
@@ -35,7 +32,7 @@ func CopyValidator(v staking.Validator) staking.Validator {
 		Description: v.Description,
 	}
 	if v.SlotPubKeys != nil {
-		cp.SlotPubKeys = make([]bls.SerializedPublicKey, len(v.SlotPubKeys))
+		cp.SlotPubKeys = make([]bls_interface.SerializedPublicKey, len(v.SlotPubKeys))
 		copy(cp.SlotPubKeys, v.SlotPubKeys)
 	}
 	if v.LastEpochInCommittee != nil {

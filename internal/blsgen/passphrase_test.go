@@ -173,7 +173,7 @@ func TestPassDecrypter_decryptFile(t *testing.T) {
 		if err != nil || test.expErr != nil {
 			continue
 		}
-		gotPub := bls.FromLibBLSPublicKeyUnsafe(secret.GetPublicKey())[:]
+		gotPub := bls_interface.FromLibBLSPublicKeyUnsafe(secret.GetPublicKey())[:]
 		if expPub := common.Hex2Bytes(test.expPublicKey); !bytes.Equal(gotPub, expPub) {
 			t.Errorf("Test %v: unexpected public key %v / %v", i, gotPub, expPub)
 		}

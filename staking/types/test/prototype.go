@@ -48,7 +48,7 @@ var (
 
 	validatorPrototype = staking.Validator{
 		Address:              common.Address{},
-		SlotPubKeys:          []bls.SerializedPublicKey{bls.SerializedPublicKey{}},
+		SlotPubKeys:          []bls_interface.SerializedPublicKey{bls_interface.SerializedPublicKey{}},
 		LastEpochInCommittee: common.Big0,
 		MinSelfDelegation:    DefaultMinSelfDel,
 		MaxTotalDelegation:   DefaultMaxTotalDel,
@@ -85,11 +85,11 @@ func GetDefaultValidator() staking.Validator {
 
 // GetDefaultValidatorWithAddr return the default staking.Validator with the
 // given validator address and bls keys
-func GetDefaultValidatorWithAddr(addr common.Address, pubs []bls.SerializedPublicKey) staking.Validator {
+func GetDefaultValidatorWithAddr(addr common.Address, pubs []bls_interface.SerializedPublicKey) staking.Validator {
 	v := CopyValidator(validatorPrototype)
 	v.Address = addr
 	if pubs != nil {
-		v.SlotPubKeys = make([]bls.SerializedPublicKey, len(pubs))
+		v.SlotPubKeys = make([]bls_interface.SerializedPublicKey, len(pubs))
 		copy(v.SlotPubKeys, pubs)
 	} else {
 		v.SlotPubKeys = nil
@@ -104,11 +104,11 @@ func GetDefaultValidatorWrapper() staking.ValidatorWrapper {
 
 // GetDefaultValidatorWrapperWithAddr return the default staking.ValidatorWrapper
 // with the given validator address and bls keys.
-func GetDefaultValidatorWrapperWithAddr(addr common.Address, pubs []bls.SerializedPublicKey) staking.ValidatorWrapper {
+func GetDefaultValidatorWrapperWithAddr(addr common.Address, pubs []bls_interface.SerializedPublicKey) staking.ValidatorWrapper {
 	w := CopyValidatorWrapper(vWrapperPrototype)
 	w.Address = addr
 	if pubs != nil {
-		w.SlotPubKeys = make([]bls.SerializedPublicKey, len(pubs))
+		w.SlotPubKeys = make([]bls_interface.SerializedPublicKey, len(pubs))
 		copy(w.SlotPubKeys, pubs)
 	} else {
 		w.SlotPubKeys = nil

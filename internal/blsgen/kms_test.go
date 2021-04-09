@@ -263,7 +263,7 @@ func TestKMSEncryption(t *testing.T) {
 	if err = priKey.DeserializeHexStr(hex.EncodeToString(decryted.Plaintext)); err != nil {
 		t.Fatal(err)
 	}
-	pubKey := bls.FromLibBLSPublicKeyUnsafe(priKey.GetPublicKey())
+	pubKey := bls_interface.FromLibBLSPublicKeyUnsafe(priKey.GetPublicKey())
 	if hex.EncodeToString(pubKey[:]) != testKeys[0].publicKey {
 		t.Errorf("unexpected public key")
 	}

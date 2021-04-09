@@ -9,7 +9,7 @@ import (
 )
 
 func TestVRF1(t *testing.T) {
-	blsSk := bls.RandPrivateKey()
+	blsSk := bls_interface.RandPrivateKey()
 
 	vrfSk := NewVRFSigner(blsSk)
 	vrfPk := NewVRFVerifier(blsSk.GetPublicKey())
@@ -29,7 +29,7 @@ func TestVRF1(t *testing.T) {
 }
 
 func TestVRF2(t *testing.T) {
-	blsSk := bls.RandPrivateKey()
+	blsSk := bls_interface.RandPrivateKey()
 
 	k := NewVRFSigner(blsSk)
 	pk := NewVRFVerifier(blsSk.GetPublicKey())
@@ -66,7 +66,7 @@ func TestVRF2(t *testing.T) {
 }
 
 func TestRightTruncateProof(t *testing.T) {
-	blsSk := bls.RandPrivateKey()
+	blsSk := bls_interface.RandPrivateKey()
 
 	k := NewVRFSigner(blsSk)
 	pk := NewVRFVerifier(blsSk.GetPublicKey())
@@ -86,7 +86,7 @@ func TestRightTruncateProof(t *testing.T) {
 }
 
 func TestLeftTruncateProof(t *testing.T) {
-	blsSk := bls.RandPrivateKey()
+	blsSk := bls_interface.RandPrivateKey()
 
 	k := NewVRFSigner(blsSk)
 	pk := NewVRFVerifier(blsSk.GetPublicKey())
@@ -103,7 +103,7 @@ func TestLeftTruncateProof(t *testing.T) {
 }
 
 func TestBitFlip(t *testing.T) {
-	blsSk := bls.RandPrivateKey()
+	blsSk := bls_interface.RandPrivateKey()
 
 	k := NewVRFSigner(blsSk)
 	pk := NewVRFVerifier(blsSk.GetPublicKey())

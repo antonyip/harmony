@@ -6,8 +6,8 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
-
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/harmony-one/harmony/crypto/bls_interface"
 )
 
 const (

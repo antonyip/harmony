@@ -686,7 +686,7 @@ func TestRate(t *testing.T) {
 		expRate     numeric.Dec
 	}{
 		{
-			votingPower: makeVotingPower(map[bls.SerializedPublicKey]numeric.Dec{
+			votingPower: makeVotingPower(map[bls_interface.SerializedPublicKey]numeric.Dec{
 				keyPairs[0].Pub(): numeric.NewDecWithPrec(1, 2),
 				keyPairs[1].Pub(): numeric.NewDecWithPrec(2, 2),
 				keyPairs[2].Pub(): numeric.NewDecWithPrec(3, 2),
@@ -699,7 +699,7 @@ func TestRate(t *testing.T) {
 			expRate: numeric.NewDecWithPrec(6, 2),
 		},
 		{
-			votingPower: makeVotingPower(map[bls.SerializedPublicKey]numeric.Dec{
+			votingPower: makeVotingPower(map[bls_interface.SerializedPublicKey]numeric.Dec{
 				keyPairs[0].Pub(): numeric.NewDecWithPrec(1, 2),
 			}),
 			records: Records{
@@ -708,12 +708,12 @@ func TestRate(t *testing.T) {
 			expRate: oneDoubleSignerRate,
 		},
 		{
-			votingPower: makeVotingPower(map[bls.SerializedPublicKey]numeric.Dec{}),
+			votingPower: makeVotingPower(map[bls_interface.SerializedPublicKey]numeric.Dec{}),
 			records:     Records{},
 			expRate:     oneDoubleSignerRate,
 		},
 		{
-			votingPower: makeVotingPower(map[bls.SerializedPublicKey]numeric.Dec{
+			votingPower: makeVotingPower(map[bls_interface.SerializedPublicKey]numeric.Dec{
 				keyPairs[0].Pub(): numeric.NewDecWithPrec(1, 2),
 				keyPairs[1].Pub(): numeric.NewDecWithPrec(2, 2),
 				keyPairs[3].Pub(): numeric.NewDecWithPrec(3, 2),
@@ -735,16 +735,16 @@ func TestRate(t *testing.T) {
 
 }
 
-func makeEmptyRecordWithSignerKey(pub bls.SerializedPublicKey) Record {
+func makeEmptyRecordWithSignerKey(pub bls_interface.SerializedPublicKey) Record {
 	var r Record
-	r.Evidence.SecondVote.SignerPubKeys = []bls.SerializedPublicKey{pub}
-	r.Evidence.FirstVote.SignerPubKeys = []bls.SerializedPublicKey{pub}
+	r.Evidence.SecondVote.SignerPubKeys = []bls_interface.SerializedPublicKey{pub}
+	r.Evidence.FirstVote.SignerPubKeys = []bls_interface.SerializedPublicKey{pub}
 	return r
 }
 
-func makeVotingPower(m map[bls.SerializedPublicKey]numeric.Dec) *votepower.Roster {
+func makeVotingPower(m map[bls_interface.SerializedPublicKey]numeric.Dec) *votepower.Roster {
 	r := &votepower.Roster{
-		Voters: make(map[bls.SerializedPublicKey]*votepower.AccommodateHarmonyVote),
+		Voters: make(map[bls_interface.SerializedPublicKey]*votepower.AccommodateHarmonyVote),
 	}
 	for pub, pct := range m {
 		r.Voters[pub] = &votepower.AccommodateHarmonyVote{
@@ -824,7 +824,7 @@ func defaultCurrentValidatorWrapper() *staking.ValidatorWrapper {
 }
 
 // defaultTestValidator makes a valid Validator kps structure
-func defaultTestValidator(pubKeys []bls.SerializedPublicKey) staking.Validator {
+func defaultTestValidator(pubKeys []bls_interface.SerializedPublicKey) staking.Validator {
 	comm := staking.Commission{
 		CommissionRates: staking.CommissionRates{
 			Rate:          numeric.MustNewDecFromStr("0.167983520183826780"),
@@ -965,7 +965,7 @@ func genKeyPair() blsKeyPair {
 	}
 }
 
-func (kp blsKeyPair) Pub() bls.SerializedPublicKey {
+func (kp blsKeyPair) Pub() bls_interface.SerializedPublicKey {
 	var pub bls.SerializedPublicKey
 	copy(pub[:], kp.pub.Serialize())
 	return pub

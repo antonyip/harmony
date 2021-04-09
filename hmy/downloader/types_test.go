@@ -245,7 +245,7 @@ func makeTestBlocks(bns []uint64) []*types.Block {
 func makeTestBlock(bn uint64) *types.Block {
 	testHeader := &block.Header{Header: headerV3.NewHeader()}
 	testHeader.SetNumber(big.NewInt(int64(bn)))
-	testHeader.SetLastCommitSignature(bls_cosi.SerializedSignature{})
+	testHeader.SetLastCommitSignature(bls_interface.SerializedSignature{})
 	testHeader.SetLastCommitBitmap(make([]byte, 10))
 	block := types.NewBlockWithHeader(testHeader)
 	block.SetCurrentCommitSig(make([]byte, 106))

@@ -129,7 +129,7 @@ func checkUndelegationEqual(ud1, ud2 staking.Undelegation) error {
 	return nil
 }
 
-func checkPubKeysEqual(pubs1, pubs2 []bls.SerializedPublicKey) error {
+func checkPubKeysEqual(pubs1, pubs2 []bls_interface.SerializedPublicKey) error {
 	if len(pubs1) != len(pubs2) {
 		return fmt.Errorf(".len not equal: %v / %v", len(pubs1), len(pubs2))
 	}

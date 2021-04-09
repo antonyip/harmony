@@ -261,7 +261,7 @@ func assertBigIntCopy(i1, i2 *big.Int) error {
 	return nil
 }
 
-func assertPubsCopy(s1, s2 []bls.SerializedPublicKey) error {
+func assertPubsCopy(s1, s2 []bls_interface.SerializedPublicKey) error {
 	if len(s1) != len(s2) {
 		return fmt.Errorf("size not equal")
 	}
@@ -273,7 +273,7 @@ func assertPubsCopy(s1, s2 []bls.SerializedPublicKey) error {
 	return nil
 }
 
-func assertSigsCopy(s1, s2 []bls.SerializedSignature) error {
+func assertSigsCopy(s1, s2 []bls_interface.SerializedSignature) error {
 	if len(s1) != len(s2) {
 		return fmt.Errorf("size not equal")
 	}
@@ -303,8 +303,8 @@ func cpTestDataSetup() {
 		MaxRate:       zeroDec,
 		MaxChangeRate: zeroDec,
 	}
-	var zeroBLSPub bls.SerializedPublicKey
-	var zeroBLSSig bls.SerializedSignature
+	var zeroBLSPub bls_interface.SerializedPublicKey
+	var zeroBLSSig bls_interface.SerializedSignature
 
 	testCreateValidator = CreateValidator{
 		ValidatorAddress:   validatorAddr,

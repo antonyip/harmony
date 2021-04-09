@@ -67,12 +67,12 @@ func TestValidateConsensusKeysForSameShard(t *testing.T) {
 		t.Error(err)
 	}
 	keys := multibls.PublicKeys{}
-	dummyKey := bls.SerializedPublicKey{}
+	dummyKey := bls_interface.SerializedPublicKey{}
 	dummyKey.FromLibBLSPublicKey(pubKey1)
-	keys = append(keys, bls.PublicKeyWrapper{Object: pubKey1, Bytes: dummyKey})
-	dummyKey = bls.SerializedPublicKey{}
+	keys = append(keys, bls_interface.PublicKeyWrapper{Object: pubKey1, Bytes: dummyKey})
+	dummyKey = bls_interface.SerializedPublicKey{}
 	dummyKey.FromLibBLSPublicKey(pubKey2)
-	keys = append(keys, bls.PublicKeyWrapper{Object: pubKey2, Bytes: dummyKey})
+	keys = append(keys, bls_interface.PublicKeyWrapper{Object: pubKey2, Bytes: dummyKey})
 	if err := GetDefaultConfig().ValidateConsensusKeysForSameShard(keys, 0); err != nil {
 		t.Error("expected", nil, "got", err)
 	}
@@ -83,7 +83,7 @@ func TestValidateConsensusKeysForSameShard(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	dummyKey = bls.SerializedPublicKey{}
+	dummyKey = bls_interface.SerializedPublicKey{}
 	dummyKey.FromLibBLSPublicKey(pubKey3)
 	keys = append(keys, bls.PublicKeyWrapper{Object: pubKey3, Bytes: dummyKey})
 	if err := GetDefaultConfig().ValidateConsensusKeysForSameShard(keys, 0); err == nil {

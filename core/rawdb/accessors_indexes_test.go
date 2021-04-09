@@ -154,14 +154,14 @@ func sampleCreateValidatorStakingTxn() *staking.StakingTransaction {
 	stakePayloadMaker := func() (staking.Directive, interface{}) {
 		p := &bls_interface.BlsPublicKey{}
 		p.DeserializeHexStr(testBLSPubKey)
-		pub := bls.SerializedPublicKey{}
+		pub := bls_interface.SerializedPublicKey{}
 		pub.FromLibBLSPublicKey(p)
 		messageBytes := []byte(staking.BLSVerificationStr)
 		privateKey := &bls_interface.BlsSecretKey{}
 		privateKey.DeserializeHexStr(testBLSPrvKey)
 		msgHash := hash.Keccak256(messageBytes)
 		signature := privateKey.SignHash(msgHash[:])
-		var sig bls.SerializedSignature
+		var sig bls_interface.SerializedSignature
 		copy(sig[:], signature.Serialize())
 
 		ra, _ := numeric.NewDecFromStr("0.7")
@@ -183,8 +183,8 @@ func sampleCreateValidatorStakingTxn() *staking.StakingTransaction {
 			MinSelfDelegation:  big.NewInt(1e18),
 			MaxTotalDelegation: big.NewInt(3e18),
 			ValidatorAddress:   crypto.PubkeyToAddress(key.PublicKey),
-			SlotPubKeys:        []bls.SerializedPublicKey{pub},
-			SlotKeySigs:        []bls.SerializedSignature{sig},
+			SlotPubKeys:        []bls_interface.SerializedPublicKey{pub},
+			SlotKeySigs:        []bls_interface.SerializedSignature{sig},
 			Amount:             big.NewInt(1e18),
 		}
 	}

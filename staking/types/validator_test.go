@@ -481,7 +481,7 @@ func TestContainsHarmonyBLSKeys(t *testing.T) {
 	}
 }
 
-func makeDeployAccountsFromBLSPubs(pubs []bls.SerializedPublicKey) []genesis.DeployAccount {
+func makeDeployAccountsFromBLSPubs(pubs []bls_interface.SerializedPublicKey) []genesis.DeployAccount {
 	das := make([]genesis.DeployAccount, 0, len(pubs))
 	for i, pub := range pubs {
 		das = append(das, genesis.DeployAccount{
@@ -691,8 +691,8 @@ func TestUpdateValidatorFromEditMsg(t *testing.T) {
 }
 
 type blsPubSigPair struct {
-	pub bls.SerializedPublicKey
-	sig bls.SerializedSignature
+	pub bls_interface.SerializedPublicKey
+	sig bls_interface.SerializedSignature
 }
 
 func makeBLSPubSigPairs(size int) []blsPubSigPair {
@@ -718,7 +718,7 @@ func makeBLSPubSigPair() blsPubSigPair {
 	return blsPubSigPair{shardPub, shardSig}
 }
 
-func getPubsFromPairs(pairs []blsPubSigPair, indexes []int) []bls.SerializedPublicKey {
+func getPubsFromPairs(pairs []blsPubSigPair, indexes []int) []bls_interface.SerializedPublicKey {
 	pubs := make([]bls.SerializedPublicKey, 0, len(indexes))
 	for _, index := range indexes {
 		pubs = append(pubs, pairs[index].pub)
@@ -726,7 +726,7 @@ func getPubsFromPairs(pairs []blsPubSigPair, indexes []int) []bls.SerializedPubl
 	return pubs
 }
 
-func getSigsFromPairs(pairs []blsPubSigPair, indexes []int) []bls.SerializedSignature {
+func getSigsFromPairs(pairs []blsPubSigPair, indexes []int) []bls_interface.SerializedSignature {
 	sigs := make([]bls.SerializedSignature, 0, len(indexes))
 	for _, index := range indexes {
 		sigs = append(sigs, pairs[index].sig)

@@ -52,11 +52,11 @@ func TestAddingQuoromParticipants(t *testing.T) {
 
 	assert.Equal(t, int64(0), decider.ParticipantsCount())
 
-	blsKeys := []harmony_bls.PublicKeyWrapper{}
+	blsKeys := []bls_interface.PublicKeyWrapper{}
 	keyCount := int64(5)
 	for i := int64(0); i < keyCount; i++ {
-		blsKey := harmony_bls.RandPrivateKey()
-		wrapper := harmony_bls.PublicKeyWrapper{Object: blsKey.GetPublicKey()}
+		blsKey := bls_interface.RandPrivateKey()
+		wrapper := bls_interface.PublicKeyWrapper{Object: blsKey.GetPublicKey()}
 		wrapper.Bytes.FromLibBLSPublicKey(wrapper.Object)
 		blsKeys = append(blsKeys, wrapper)
 	}
@@ -76,15 +76,15 @@ func TestSubmitVote(test *testing.T) {
 	)
 
 	message := "test string"
-	blsPriKey1 := bls.RandPrivateKey()
+	blsPriKey1 := bls_interface.RandPrivateKey()
 	pubKeyWrapper1 := bls.PublicKeyWrapper{Object: blsPriKey1.GetPublicKey()}
 	pubKeyWrapper1.Bytes.FromLibBLSPublicKey(pubKeyWrapper1.Object)
 
-	blsPriKey2 := bls.RandPrivateKey()
-	pubKeyWrapper2 := bls.PublicKeyWrapper{Object: blsPriKey2.GetPublicKey()}
+	blsPriKey2 := bls_interface.RandPrivateKey()
+	pubKeyWrapper2 := bls_interface.PublicKeyWrapper{Object: blsPriKey2.GetPublicKey()}
 	pubKeyWrapper2.Bytes.FromLibBLSPublicKey(pubKeyWrapper2.Object)
 
-	decider.UpdateParticipants([]bls.PublicKeyWrapper{pubKeyWrapper1, pubKeyWrapper2})
+	decider.UpdateParticipants([]bls_interface.PublicKeyWrapper{pubKeyWrapper1, pubKeyWrapper2})
 
 	if _, err := decider.submitVote(
 		Prepare,

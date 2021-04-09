@@ -59,6 +59,16 @@ func (s* BlsSecretKey) DeserializeHexStr(str string) error {
 	return s.secretKey.DeserializeHexStr(str)
 }
 
+func (s *BlsSecretKey) Deserialize(buf []byte) error {
+	return s.secretKey.Deserialize(buf)
+}
+
+func (s *BlsSecretKey) Sign(m string) (sig *BlsSign) {
+	returnValue := &BlsSign{}
+	returnValue.sign.DeserializeHexStr(s.secretKey.Sign(m).SerializeToHexStr())
+	return returnValue
+}
+
 func (s* BlsSign) Add(rhs *BlsSign) {
 	s.sign.Add(&rhs.sign)
 }

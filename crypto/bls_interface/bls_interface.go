@@ -15,24 +15,9 @@ var (
 	emptyBLSPubKey = SerializedPublicKey{}
 )
 
-type BlsSecretKey struct {
-	secretKey bls.SecretKey
-}
-
 type BlsPublicKey struct {
 	publicKey bls.PublicKey
-}
-
-type BlsSign struct {
-	sign bls.Sign
-}
-
-func (s *BlsSign) SerializeToHexStr() string {
-	return s.sign.SerializeToHexStr()
-}
-
-func (s* BlsSign) DeserializeHexStr(str string) error {
-	return s.sign.DeserializeHexStr(str)
+	publicKeyNew blst.P1Affine
 }
 
 func (pub *BlsPublicKey) SerializeToHexStr() string {
@@ -49,6 +34,27 @@ func (pub *BlsPublicKey) Serialize() []byte {
 
 func (pub *BlsPublicKey) Deserialize(buf []byte) error {
 	return pub.publicKey.Deserialize(buf)
+}
+
+func (pub* BlsPublicKey) Add(rhs *BlsPublicKey) {
+	pub.publicKey.Add(&rhs.publicKey)
+}
+
+func (pub* BlsPublicKey) Sub(rhs *BlsPublicKey) {
+	pub.publicKey.Sub(&rhs.publicKey)
+}
+
+func (pub *BlsPublicKey) GetAddress() [20]byte {
+	return pub.publicKey.GetAddress()
+}
+
+func (pub *BlsPublicKey) IsEqual(rhs *BlsPublicKey) bool {
+	return pub.publicKey.IsEqual(&rhs.publicKey)
+}
+
+type BlsSecretKey struct {
+	secretKey bls.SecretKey
+	secretKeyNew blst.SecretKey
 }
 
 func (sec *BlsSecretKey) SerializeToHexStr() string {
@@ -73,22 +79,37 @@ func (s *BlsSecretKey) Sign(m string) (sig *BlsSign) {
 	return returnValue
 }
 
-func (sig* BlsSign) Add(rhs *BlsSign) {
-	sig.sign.Add(&rhs.sign)
-}
-
-func (pub* BlsPublicKey) Add(rhs *BlsPublicKey) {
-	pub.publicKey.Add(&rhs.publicKey)
-}
-
-func (s* BlsPublicKey) Sub(rhs *BlsPublicKey) {
-	s.publicKey.Sub(&rhs.publicKey)
-}
-
 func (sec *BlsSecretKey) SignHash(hash []byte) (sig *BlsSign){
 	returnValue := &BlsSign{}
 	returnValue.sign.DeserializeHexStr(sec.secretKey.SignHash(hash).SerializeToHexStr())
 	return returnValue
+}
+
+func (sec *BlsSecretKey) SetByCSPRNG() {
+	sec.secretKey.SetByCSPRNG()
+}
+
+func (sec *BlsSecretKey) GetPublicKey() (pub *BlsPublicKey) {
+	returnValue := &BlsPublicKey{}
+	returnValue.DeserializeHexStr(sec.secretKey.GetPublicKey().SerializeToHexStr())
+	return returnValue
+}
+
+type BlsSign struct {
+	sign bls.Sign
+	signNew blst.P2Affine
+}
+
+func (sig* BlsSign) Add(rhs *BlsSign) {
+	sig.sign.Add(&rhs.sign)
+}
+
+func (sig *BlsSign) SerializeToHexStr() string {
+	return sig.sign.SerializeToHexStr()
+}
+
+func (sig* BlsSign) DeserializeHexStr(str string) error {
+	return sig.sign.DeserializeHexStr(str)
 }
 
 func (sig *BlsSign) Serialize() []byte {
@@ -101,24 +122,6 @@ func (sig *BlsSign) Deserialize(buf []byte) error {
 
 func (sig *BlsSign) VerifyHash(pub *BlsPublicKey, hash []byte) bool {
 	return sig.sign.VerifyHash(&pub.publicKey, hash)
-}
-
-func (pub *BlsPublicKey) GetAddress() [20]byte {
-	return pub.publicKey.GetAddress()
-}
-
-func (pub *BlsPublicKey) IsEqual(rhs *BlsPublicKey) bool {
-	return pub.publicKey.IsEqual(&rhs.publicKey)
-}
-
-func (sec *BlsSecretKey) SetByCSPRNG() {
-	sec.secretKey.SetByCSPRNG()
-}
-
-func (sec *BlsSecretKey) GetPublicKey() (pub *BlsPublicKey) {
-	returnValue := &BlsPublicKey{}
-	returnValue.DeserializeHexStr(sec.secretKey.GetPublicKey().SerializeToHexStr())
-	return returnValue
 }
 
 // PublicKeySizeInBytes ..
@@ -224,5 +227,4 @@ func SeparateSigAndMask(commitSigs []byte) ([]byte, []byte, error) {
 
 func Init() {
 	bls.Init(bls.BLS12_381)
-	blst.SetMaxProcs(1)
 }

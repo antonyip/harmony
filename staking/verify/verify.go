@@ -22,7 +22,7 @@ func AggregateSigForCommittee(
 	chain *core.BlockChain,
 	committee *shard.Committee,
 	decider quorum.Decider,
-	aggSignature *bls-bls_interface.BlsSign,
+	aggSignature *bls_interface.BlsSign,
 	hash common.Hash,
 	blockNum, viewID uint64,
 	epoch *big.Int,
@@ -32,7 +32,7 @@ func AggregateSigForCommittee(
 	if err != nil {
 		return err
 	}
-	mask, err := bls_cosi.NewMask(committerKeys, nil)
+	mask, err := bls_interface.NewMask(committerKeys, nil)
 	if err != nil {
 		return err
 	}

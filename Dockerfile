@@ -6,6 +6,7 @@ RUN apt update && apt upgrade -y
 
 ENV GOPATH=/root/go
 ENV GO111MODULE=on
+ENV SUPRA_PATH=${GOPATH}/src/github.com/supranational
 ENV HMY_PATH=${GOPATH}/src/github.com/harmony-one
 ENV OPENSSL_DIR=/usr/lib/ssl
 ENV MCL_DIR=${HMY_PATH}/mcl
@@ -35,7 +36,7 @@ RUN git clone https://github.com/harmony-one/harmony.git ${HMY_PATH}/harmony
 
 RUN git clone https://github.com/harmony-one/bls.git ${HMY_PATH}/bls
 
-RUN git clone https://github.com/supranational/blst.git ${HMY_PATH}/blst
+RUN git clone https://github.com/supranational/blst.git ${SUPRA_PATH}/blst
 
 RUN git clone https://github.com/harmony-one/mcl.git ${HMY_PATH}/mcl
 
@@ -43,7 +44,7 @@ RUN git clone https://github.com/harmony-one/go-sdk.git ${HMY_PATH}/go-sdk
 
 RUN cd ${HMY_PATH}/bls && make -j8 BLS_SWAP_G=1
 
-RUN cd ${HMY_PATH}/blst && sh build.sh
+RUN cd ${SUPRA_PATH}/blst && sh build.sh
 
 RUN touch /root/.bash_profile
 

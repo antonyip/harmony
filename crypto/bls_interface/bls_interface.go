@@ -35,15 +35,16 @@ func (s* BlsSign) DeserializeHexStr(str string) error {
 	return s.Sign.DeserializeHexStr(str)
 }
 
-func (s *BlsPublicKey) SerializeToHexStr() string {
-	if (&(s.PublicKey) == nil) {
-		s.PublicKey = bls.PublicKey{}
-	}
-	return s.PublicKey.SerializeToHexStr()
+func (pub *BlsPublicKey) SerializeToHexStr() string {
+	return pub.PublicKey.SerializeToHexStr()
 }
 
-func (s* BlsPublicKey) DeserializeHexStr(str string) error {
-	return s.PublicKey.DeserializeHexStr(str)
+func (pub* BlsPublicKey) DeserializeHexStr(str string) error {
+	return pub.PublicKey.DeserializeHexStr(str)
+}
+
+func (pub *BlsPublicKey) Serialize() []byte {
+	return pub.PublicKey.Serialize()
 }
 
 func (s *BlsSecretKey) SerializeToHexStr() string {
@@ -68,9 +69,7 @@ func (s* BlsPublicKey) Sub(rhs *BlsPublicKey) {
 
 func (sec *BlsSecretKey) SignHash(hash []byte) (sig *BlsSign){
 	returnValue := &BlsSign{}
-	Siggy := sec.SecretKey.SignHash(hash)
-	strVal := Siggy.SerializeToHexStr()
-	returnValue.Sign.DeserializeHexStr(strVal)
+	returnValue.Sign.DeserializeHexStr(sec.SecretKey.SignHash(hash).SerializeToHexStr())
 	return returnValue
 }
 
@@ -100,7 +99,7 @@ func (sec *BlsSecretKey) SetByCSPRNG() {
 
 func (sec *BlsSecretKey) GetPublicKey() (pub *BlsPublicKey) {
 	returnValue := &BlsPublicKey{}
-	returnValue.DeserializeHexStr(sec.GetPublicKey().SerializeToHexStr())
+	returnValue.DeserializeHexStr(sec.SecretKey.GetPublicKey().SerializeToHexStr())
 	return returnValue
 }
 
@@ -125,9 +124,9 @@ type PublicKeyWrapper struct {
 
 // WrapperFromPrivateKey makes a PrivateKeyWrapper from bls secret key
 func WrapperFromPrivateKey(pri *BlsSecretKey) PrivateKeyWrapper {
-	pub := pri.SecretKey.GetPublicKey()
+	pub := pri.GetPublicKey()
 	pubKeyWrapper := &BlsPublicKey{}
-	pubKeyWrapper.PublicKey.DeserializeHexStr(pub.SerializeToHexStr())
+	pubKeyWrapper.DeserializeHexStr(pub.SerializeToHexStr())
 	pubBytes := FromLibBLSPublicKeyUnsafe(pubKeyWrapper)
 	return PrivateKeyWrapper{
 		Pri: pri,
@@ -179,7 +178,7 @@ func FromLibBLSPublicKeyUnsafe(key *BlsPublicKey) *SerializedPublicKey {
 
 // FromLibBLSPublicKey replaces the key contents with the given key,
 func (pk *SerializedPublicKey) FromLibBLSPublicKey(key *BlsPublicKey) error {
-	bytes := key.PublicKey.Serialize()
+	bytes := key.Serialize()
 	if len(bytes) != len(pk) {
 		return errors.Errorf(
 			"key size (BLS) size mismatch, expected %d have %d", len(pk), len(bytes),

@@ -44,7 +44,7 @@ func BytesToBLSPublicKey(bytes []byte) (*BlsPublicKey, error) {
 		return nil, errPubKeyCast
 	}
 	pubKey := &BlsPublicKey{}
-	err := pubKey.PublicKey.Deserialize(bytes)
+	err := pubKey.Deserialize(bytes)
 
 	if err == nil {
 		BLSPubKeyCache.Add(kkey, *pubKey)

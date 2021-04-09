@@ -29,7 +29,7 @@ func init() {
 
 // Public returns the corresponding public key as bytes.
 func (k *PrivateKey) Public() crypto.PublicKey {
-	return *k.SecretKey.GetPublicKey()
+	return *k.GetPublicKey()
 }
 
 // Serialize serialize the public key into bytes
@@ -90,7 +90,7 @@ func (pk *PublicKey) ProofToHash(alpha, pi []byte) ([32]byte, error) {
 
 	msgHash := sha256.Sum256(alpha)
 	tmpPublicKey := &bls_interface.BlsPublicKey{}
-	tmpPublicKey.DeserializeHexStr(pk.PublicKey.SerializeToHexStr())
+	tmpPublicKey.DeserializeHexStr(pk.SerializeToHexStr())
 	if !msgSig.VerifyHash(tmpPublicKey, msgHash[:]) {
 		return nilIndex, ErrInvalidVRF
 	}

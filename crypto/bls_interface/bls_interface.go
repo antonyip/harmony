@@ -16,90 +16,94 @@ var (
 )
 
 type BlsSecretKey struct {
-	SecretKey bls.SecretKey
+	secretKey bls.SecretKey
 }
 
 type BlsPublicKey struct {
-	PublicKey bls.PublicKey
+	publicKey bls.PublicKey
 }
 
 type BlsSign struct {
-	Sign bls.Sign
+	sign bls.Sign
 }
 
 func (s *BlsSign) SerializeToHexStr() string {
-	return s.Sign.SerializeToHexStr()
+	return s.sign.SerializeToHexStr()
 }
 
 func (s* BlsSign) DeserializeHexStr(str string) error {
-	return s.Sign.DeserializeHexStr(str)
+	return s.sign.DeserializeHexStr(str)
 }
 
 func (pub *BlsPublicKey) SerializeToHexStr() string {
-	return pub.PublicKey.SerializeToHexStr()
+	return pub.publicKey.SerializeToHexStr()
 }
 
 func (pub* BlsPublicKey) DeserializeHexStr(str string) error {
-	return pub.PublicKey.DeserializeHexStr(str)
+	return pub.publicKey.DeserializeHexStr(str)
 }
 
 func (pub *BlsPublicKey) Serialize() []byte {
-	return pub.PublicKey.Serialize()
+	return pub.publicKey.Serialize()
+}
+
+func (pub *BlsPublicKey) Deserialize(buf []byte) error {
+	return pub.publicKey.Deserialize(buf)
 }
 
 func (s *BlsSecretKey) SerializeToHexStr() string {
-	return s.SecretKey.SerializeToHexStr()
+	return s.secretKey.SerializeToHexStr()
 }
 
 func (s* BlsSecretKey) DeserializeHexStr(str string) error {
-	return s.SecretKey.DeserializeHexStr(str)
+	return s.secretKey.DeserializeHexStr(str)
 }
 
 func (s* BlsSign) Add(rhs *BlsSign) {
-	s.Sign.Add(&rhs.Sign)
+	s.sign.Add(&rhs.sign)
 }
 
 func (s* BlsPublicKey) Add(rhs *BlsPublicKey) {
-	s.PublicKey.Add(&rhs.PublicKey)
+	s.publicKey.Add(&rhs.publicKey)
 }
 
 func (s* BlsPublicKey) Sub(rhs *BlsPublicKey) {
-	s.PublicKey.Sub(&rhs.PublicKey)
+	s.publicKey.Sub(&rhs.publicKey)
 }
 
 func (sec *BlsSecretKey) SignHash(hash []byte) (sig *BlsSign){
 	returnValue := &BlsSign{}
-	returnValue.Sign.DeserializeHexStr(sec.SecretKey.SignHash(hash).SerializeToHexStr())
+	returnValue.sign.DeserializeHexStr(sec.secretKey.SignHash(hash).SerializeToHexStr())
 	return returnValue
 }
 
 func (sig *BlsSign) Serialize() []byte {
-	return sig.Sign.Serialize()
+	return sig.sign.Serialize()
 }
 
 func (sig *BlsSign) Deserialize(buf []byte) error {
-	return sig.Sign.Deserialize(buf)
+	return sig.sign.Deserialize(buf)
 }
 
 func (sig *BlsSign) VerifyHash(pub *BlsPublicKey, hash []byte) bool {
-	return sig.Sign.VerifyHash(&pub.PublicKey, hash)
+	return sig.sign.VerifyHash(&pub.publicKey, hash)
 }
 
 func (pub *BlsPublicKey) GetAddress() [20]byte {
-	return pub.PublicKey.GetAddress()
+	return pub.publicKey.GetAddress()
 }
 
 func (pub *BlsPublicKey) IsEqual(rhs *BlsPublicKey) bool {
-	return pub.PublicKey.IsEqual(&rhs.PublicKey)
+	return pub.publicKey.IsEqual(&rhs.publicKey)
 }
 
 func (sec *BlsSecretKey) SetByCSPRNG() {
-	sec.SecretKey.SetByCSPRNG()
+	sec.secretKey.SetByCSPRNG()
 }
 
 func (sec *BlsSecretKey) GetPublicKey() (pub *BlsPublicKey) {
 	returnValue := &BlsPublicKey{}
-	returnValue.DeserializeHexStr(sec.SecretKey.GetPublicKey().SerializeToHexStr())
+	returnValue.DeserializeHexStr(sec.secretKey.GetPublicKey().SerializeToHexStr())
 	return returnValue
 }
 

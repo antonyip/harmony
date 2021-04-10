@@ -5,123 +5,213 @@ import (
 	"bytes"
 	"encoding/hex"
 	"math/big"
-
 	"github.com/harmony-one/bls/ffi/go/bls"
-	blst "github.com/supranational/blst/bindings/go"
 	"github.com/pkg/errors"
 )
 
 var (
 	emptyBLSPubKey = SerializedPublicKey{}
+	tmpDebugMode = 0
 )
 
 type BlsPublicKey struct {
 	publicKey bls.PublicKey
-	publicKeyNew blst.P1Affine
+	publicKeyNew blstPublicKey
 }
 
 func (pub *BlsPublicKey) SerializeToHexStr() string {
-	return pub.publicKey.SerializeToHexStr()
+	if (tmpDebugMode == 1)	{
+		return pub.publicKeyNew.SerializeToHexStr()
+	} else {
+		return pub.publicKey.SerializeToHexStr()
+	}
 }
 
 func (pub* BlsPublicKey) DeserializeHexStr(str string) error {
-	return pub.publicKey.DeserializeHexStr(str)
+	if (tmpDebugMode == 1)	{
+		return pub.publicKeyNew.DeserializeHexStr(str)
+	} else {
+		return pub.publicKey.DeserializeHexStr(str)
+	}
 }
 
 func (pub *BlsPublicKey) Serialize() []byte {
-	return pub.publicKey.Serialize()
+	if (tmpDebugMode == 1)	{
+		return pub.publicKeyNew.Serialize()
+	} else {
+		return pub.publicKey.Serialize()
+	}
 }
 
 func (pub *BlsPublicKey) Deserialize(buf []byte) error {
-	return pub.publicKey.Deserialize(buf)
+	if (tmpDebugMode == 1)	{
+		return pub.publicKeyNew.Deserialize(buf)
+	} else {
+		return pub.publicKey.Deserialize(buf)
+	}
 }
 
 func (pub* BlsPublicKey) Add(rhs *BlsPublicKey) {
-	pub.publicKey.Add(&rhs.publicKey)
+	if (tmpDebugMode == 1)	{
+		pub.publicKey.Add(&rhs.publicKey)
+	} else {
+		pub.publicKey.Add(&rhs.publicKey)
+	}
+
 }
 
 func (pub* BlsPublicKey) Sub(rhs *BlsPublicKey) {
-	pub.publicKey.Sub(&rhs.publicKey)
+	if (tmpDebugMode == 1)	{
+		pub.publicKey.Sub(&rhs.publicKey)
+	} else {
+		pub.publicKey.Sub(&rhs.publicKey)
+	}
+
 }
 
 func (pub *BlsPublicKey) GetAddress() [20]byte {
-	return pub.publicKey.GetAddress()
+	if (tmpDebugMode == 1)	{
+		return pub.publicKey.GetAddress()
+	} else {
+		return pub.publicKey.GetAddress()
+	}
+
 }
 
 func (pub *BlsPublicKey) IsEqual(rhs *BlsPublicKey) bool {
-	return pub.publicKey.IsEqual(&rhs.publicKey)
+	if (tmpDebugMode == 1)	{
+		return pub.publicKey.IsEqual(&rhs.publicKey)
+	} else {
+		return pub.publicKey.IsEqual(&rhs.publicKey)
+	}
 }
 
 type BlsSecretKey struct {
 	secretKey bls.SecretKey
-	secretKeyNew blst.SecretKey
+	secretKeyNew blstSecretKey
 }
 
 func (sec *BlsSecretKey) SerializeToHexStr() string {
-	return sec.secretKey.SerializeToHexStr()
+	if (tmpDebugMode == 1)	{
+		return sec.secretKey.SerializeToHexStr()
+	} else {
+		return sec.secretKey.SerializeToHexStr()
+	}
 }
 
 func (sec* BlsSecretKey) DeserializeHexStr(str string) error {
-	return sec.secretKey.DeserializeHexStr(str)
+	if (tmpDebugMode == 1)	{
+		return sec.secretKey.DeserializeHexStr(str)
+	} else {
+		return sec.secretKey.DeserializeHexStr(str)
+	}
 }
 
 func (sec *BlsSecretKey) Deserialize(buf []byte) error {
-	return sec.secretKey.Deserialize(buf)
+	if (tmpDebugMode == 1)	{
+		return sec.secretKey.Deserialize(buf)
+	} else {
+		return sec.secretKey.Deserialize(buf)
+	}
 }
 
 func (sec *BlsSecretKey) IsEqual(rhs *BlsSecretKey) bool {
-	return sec.secretKey.IsEqual(&rhs.secretKey)
+	if (tmpDebugMode == 1)	{
+		return sec.secretKey.IsEqual(&rhs.secretKey)
+	} else {
+		return sec.secretKey.IsEqual(&rhs.secretKey)
+	}
 }
 
 func (s *BlsSecretKey) Sign(m string) (sig *BlsSign) {
 	returnValue := &BlsSign{}
-	returnValue.sign.DeserializeHexStr(s.secretKey.Sign(m).SerializeToHexStr())
+	if (tmpDebugMode == 1)	{
+		returnValue.sign.DeserializeHexStr(s.secretKey.Sign(m).SerializeToHexStr())
+	} else {
+		returnValue.sign.DeserializeHexStr(s.secretKey.Sign(m).SerializeToHexStr())
+	}
 	return returnValue
 }
 
 func (sec *BlsSecretKey) SignHash(hash []byte) (sig *BlsSign){
 	returnValue := &BlsSign{}
-	returnValue.sign.DeserializeHexStr(sec.secretKey.SignHash(hash).SerializeToHexStr())
+	if (tmpDebugMode == 1)	{
+		returnValue.sign.DeserializeHexStr(sec.secretKey.SignHash(hash).SerializeToHexStr())
+	} else {
+		returnValue.sign.DeserializeHexStr(sec.secretKey.SignHash(hash).SerializeToHexStr())
+	}
 	return returnValue
 }
 
 func (sec *BlsSecretKey) SetByCSPRNG() {
-	sec.secretKey.SetByCSPRNG()
+	if (tmpDebugMode == 1)	{
+		sec.secretKey.SetByCSPRNG()
+	} else {
+		sec.secretKey.SetByCSPRNG()
+	}
 }
 
 func (sec *BlsSecretKey) GetPublicKey() (pub *BlsPublicKey) {
 	returnValue := &BlsPublicKey{}
-	returnValue.DeserializeHexStr(sec.secretKey.GetPublicKey().SerializeToHexStr())
+	if (tmpDebugMode == 1)	{
+		returnValue.DeserializeHexStr(sec.secretKey.GetPublicKey().SerializeToHexStr())
+	} else {
+		returnValue.DeserializeHexStr(sec.secretKey.GetPublicKey().SerializeToHexStr())
+	}
 	return returnValue
 }
 
 type BlsSign struct {
 	sign bls.Sign
-	signNew blst.P2Affine
+	signNew blstSign
 }
 
 func (sig* BlsSign) Add(rhs *BlsSign) {
-	sig.sign.Add(&rhs.sign)
+	if (tmpDebugMode == 1)	{
+		sig.sign.Add(&rhs.sign)
+	} else {
+		sig.sign.Add(&rhs.sign)
+	}
 }
 
 func (sig *BlsSign) SerializeToHexStr() string {
-	return sig.sign.SerializeToHexStr()
+	if (tmpDebugMode == 1)	{
+		return sig.sign.SerializeToHexStr()
+	} else {
+		return sig.sign.SerializeToHexStr()
+	}
 }
 
 func (sig* BlsSign) DeserializeHexStr(str string) error {
-	return sig.sign.DeserializeHexStr(str)
+	if (tmpDebugMode == 1)	{
+		return sig.sign.DeserializeHexStr(str)
+	} else {
+		return sig.sign.DeserializeHexStr(str)
+	}
 }
 
 func (sig *BlsSign) Serialize() []byte {
-	return sig.sign.Serialize()
+	if (tmpDebugMode == 1)	{
+		return sig.sign.Serialize()
+	} else {
+		return sig.sign.Serialize()
+	}
 }
 
 func (sig *BlsSign) Deserialize(buf []byte) error {
-	return sig.sign.Deserialize(buf)
+	if (tmpDebugMode == 1)	{
+		return sig.sign.Deserialize(buf)
+	} else {
+		return sig.sign.Deserialize(buf)
+	}
 }
 
 func (sig *BlsSign) VerifyHash(pub *BlsPublicKey, hash []byte) bool {
-	return sig.sign.VerifyHash(&pub.publicKey, hash)
+	if (tmpDebugMode == 1)	{
+		return sig.sign.VerifyHash(&pub.publicKey, hash)
+	} else {
+		return sig.sign.VerifyHash(&pub.publicKey, hash)
+	}
 }
 
 // PublicKeySizeInBytes ..

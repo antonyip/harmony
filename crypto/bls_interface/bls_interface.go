@@ -11,8 +11,12 @@ import (
 
 var (
 	emptyBLSPubKey = SerializedPublicKey{}
-	tmpDebugMode = 0
+	useNewBlst = false
 )
+
+func UseNewBlst(v bool) {
+	useNewBlst = v
+}
 
 type BlsPublicKey struct {
 	publicKey bls.PublicKey
@@ -20,7 +24,7 @@ type BlsPublicKey struct {
 }
 
 func (pub *BlsPublicKey) SerializeToHexStr() string {
-	if (tmpDebugMode == 1)	{
+	if (useNewBlst)	{
 		return pub.publicKeyNew.SerializeToHexStr()
 	} else {
 		return pub.publicKey.SerializeToHexStr()
@@ -28,7 +32,7 @@ func (pub *BlsPublicKey) SerializeToHexStr() string {
 }
 
 func (pub* BlsPublicKey) DeserializeHexStr(str string) error {
-	if (tmpDebugMode == 1)	{
+	if (useNewBlst)	{
 		return pub.publicKeyNew.DeserializeHexStr(str)
 	} else {
 		return pub.publicKey.DeserializeHexStr(str)
@@ -36,7 +40,7 @@ func (pub* BlsPublicKey) DeserializeHexStr(str string) error {
 }
 
 func (pub *BlsPublicKey) Serialize() []byte {
-	if (tmpDebugMode == 1)	{
+	if (useNewBlst)	{
 		return pub.publicKeyNew.Serialize()
 	} else {
 		return pub.publicKey.Serialize()
@@ -44,7 +48,7 @@ func (pub *BlsPublicKey) Serialize() []byte {
 }
 
 func (pub *BlsPublicKey) Deserialize(buf []byte) error {
-	if (tmpDebugMode == 1)	{
+	if (useNewBlst)	{
 		return pub.publicKeyNew.Deserialize(buf)
 	} else {
 		return pub.publicKey.Deserialize(buf)
@@ -52,7 +56,7 @@ func (pub *BlsPublicKey) Deserialize(buf []byte) error {
 }
 
 func (pub* BlsPublicKey) Add(rhs *BlsPublicKey) {
-	if (tmpDebugMode == 1)	{
+	if (useNewBlst)	{
 		pub.publicKey.Add(&rhs.publicKey)
 	} else {
 		pub.publicKey.Add(&rhs.publicKey)
@@ -61,7 +65,7 @@ func (pub* BlsPublicKey) Add(rhs *BlsPublicKey) {
 }
 
 func (pub* BlsPublicKey) Sub(rhs *BlsPublicKey) {
-	if (tmpDebugMode == 1)	{
+	if (useNewBlst)	{
 		pub.publicKey.Sub(&rhs.publicKey)
 	} else {
 		pub.publicKey.Sub(&rhs.publicKey)
@@ -70,7 +74,7 @@ func (pub* BlsPublicKey) Sub(rhs *BlsPublicKey) {
 }
 
 func (pub *BlsPublicKey) GetAddress() [20]byte {
-	if (tmpDebugMode == 1)	{
+	if (useNewBlst)	{
 		return pub.publicKey.GetAddress()
 	} else {
 		return pub.publicKey.GetAddress()
@@ -79,7 +83,7 @@ func (pub *BlsPublicKey) GetAddress() [20]byte {
 }
 
 func (pub *BlsPublicKey) IsEqual(rhs *BlsPublicKey) bool {
-	if (tmpDebugMode == 1)	{
+	if (useNewBlst)	{
 		return pub.publicKey.IsEqual(&rhs.publicKey)
 	} else {
 		return pub.publicKey.IsEqual(&rhs.publicKey)
@@ -92,7 +96,7 @@ type BlsSecretKey struct {
 }
 
 func (sec *BlsSecretKey) SerializeToHexStr() string {
-	if (tmpDebugMode == 1)	{
+	if (useNewBlst)	{
 		return sec.secretKey.SerializeToHexStr()
 	} else {
 		return sec.secretKey.SerializeToHexStr()
@@ -100,7 +104,7 @@ func (sec *BlsSecretKey) SerializeToHexStr() string {
 }
 
 func (sec* BlsSecretKey) DeserializeHexStr(str string) error {
-	if (tmpDebugMode == 1)	{
+	if (useNewBlst)	{
 		return sec.secretKey.DeserializeHexStr(str)
 	} else {
 		return sec.secretKey.DeserializeHexStr(str)
@@ -108,7 +112,7 @@ func (sec* BlsSecretKey) DeserializeHexStr(str string) error {
 }
 
 func (sec *BlsSecretKey) Deserialize(buf []byte) error {
-	if (tmpDebugMode == 1)	{
+	if (useNewBlst)	{
 		return sec.secretKey.Deserialize(buf)
 	} else {
 		return sec.secretKey.Deserialize(buf)
@@ -116,7 +120,7 @@ func (sec *BlsSecretKey) Deserialize(buf []byte) error {
 }
 
 func (sec *BlsSecretKey) IsEqual(rhs *BlsSecretKey) bool {
-	if (tmpDebugMode == 1)	{
+	if (useNewBlst)	{
 		return sec.secretKey.IsEqual(&rhs.secretKey)
 	} else {
 		return sec.secretKey.IsEqual(&rhs.secretKey)
@@ -125,7 +129,7 @@ func (sec *BlsSecretKey) IsEqual(rhs *BlsSecretKey) bool {
 
 func (s *BlsSecretKey) Sign(m string) (sig *BlsSign) {
 	returnValue := &BlsSign{}
-	if (tmpDebugMode == 1)	{
+	if (useNewBlst)	{
 		returnValue.sign.DeserializeHexStr(s.secretKey.Sign(m).SerializeToHexStr())
 	} else {
 		returnValue.sign.DeserializeHexStr(s.secretKey.Sign(m).SerializeToHexStr())
@@ -135,7 +139,7 @@ func (s *BlsSecretKey) Sign(m string) (sig *BlsSign) {
 
 func (sec *BlsSecretKey) SignHash(hash []byte) (sig *BlsSign){
 	returnValue := &BlsSign{}
-	if (tmpDebugMode == 1)	{
+	if (useNewBlst)	{
 		returnValue.sign.DeserializeHexStr(sec.secretKey.SignHash(hash).SerializeToHexStr())
 	} else {
 		returnValue.sign.DeserializeHexStr(sec.secretKey.SignHash(hash).SerializeToHexStr())
@@ -144,7 +148,7 @@ func (sec *BlsSecretKey) SignHash(hash []byte) (sig *BlsSign){
 }
 
 func (sec *BlsSecretKey) SetByCSPRNG() {
-	if (tmpDebugMode == 1)	{
+	if (useNewBlst)	{
 		sec.secretKey.SetByCSPRNG()
 	} else {
 		sec.secretKey.SetByCSPRNG()
@@ -153,7 +157,7 @@ func (sec *BlsSecretKey) SetByCSPRNG() {
 
 func (sec *BlsSecretKey) GetPublicKey() (pub *BlsPublicKey) {
 	returnValue := &BlsPublicKey{}
-	if (tmpDebugMode == 1)	{
+	if (useNewBlst)	{
 		returnValue.DeserializeHexStr(sec.secretKey.GetPublicKey().SerializeToHexStr())
 	} else {
 		returnValue.DeserializeHexStr(sec.secretKey.GetPublicKey().SerializeToHexStr())
@@ -167,7 +171,7 @@ type BlsSign struct {
 }
 
 func (sig* BlsSign) Add(rhs *BlsSign) {
-	if (tmpDebugMode == 1)	{
+	if (useNewBlst)	{
 		sig.sign.Add(&rhs.sign)
 	} else {
 		sig.sign.Add(&rhs.sign)
@@ -175,7 +179,7 @@ func (sig* BlsSign) Add(rhs *BlsSign) {
 }
 
 func (sig *BlsSign) SerializeToHexStr() string {
-	if (tmpDebugMode == 1)	{
+	if (useNewBlst)	{
 		return sig.sign.SerializeToHexStr()
 	} else {
 		return sig.sign.SerializeToHexStr()
@@ -183,7 +187,7 @@ func (sig *BlsSign) SerializeToHexStr() string {
 }
 
 func (sig* BlsSign) DeserializeHexStr(str string) error {
-	if (tmpDebugMode == 1)	{
+	if (useNewBlst)	{
 		return sig.sign.DeserializeHexStr(str)
 	} else {
 		return sig.sign.DeserializeHexStr(str)
@@ -191,7 +195,7 @@ func (sig* BlsSign) DeserializeHexStr(str string) error {
 }
 
 func (sig *BlsSign) Serialize() []byte {
-	if (tmpDebugMode == 1)	{
+	if (useNewBlst)	{
 		return sig.sign.Serialize()
 	} else {
 		return sig.sign.Serialize()
@@ -199,7 +203,7 @@ func (sig *BlsSign) Serialize() []byte {
 }
 
 func (sig *BlsSign) Deserialize(buf []byte) error {
-	if (tmpDebugMode == 1)	{
+	if (useNewBlst)	{
 		return sig.sign.Deserialize(buf)
 	} else {
 		return sig.sign.Deserialize(buf)
@@ -207,7 +211,7 @@ func (sig *BlsSign) Deserialize(buf []byte) error {
 }
 
 func (sig *BlsSign) VerifyHash(pub *BlsPublicKey, hash []byte) bool {
-	if (tmpDebugMode == 1)	{
+	if (useNewBlst)	{
 		return sig.sign.VerifyHash(&pub.publicKey, hash)
 	} else {
 		return sig.sign.VerifyHash(&pub.publicKey, hash)

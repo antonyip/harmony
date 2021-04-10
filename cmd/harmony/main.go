@@ -550,7 +550,7 @@ func createGlobalConfig(hc harmonyConfig) (*nodeconfig.ConfigType, error) {
 	selfPeer := p2p.Peer{
 		IP:              hc.P2P.IP,
 		Port:            strconv.Itoa(hc.P2P.Port),
-		ConsensusPubKey: nodeConfig.ConsensusPriKey[0].Pub.Object,
+		ConsensusPubKey: *nodeConfig.ConsensusPriKey[0].Pub.Object,
 	}
 
 	myHost, err = p2p.NewHost(p2p.HostConfig{
